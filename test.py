@@ -1,5 +1,7 @@
 from math import cos, exp, pi, sin, sqrt
 
+import numpy
+
 
 def sphere(*x):
     '''
@@ -8,7 +10,7 @@ def sphere(*x):
 
     Range: -inf <= x <= inf
     '''
-    return sum([num**2 for num in x])
+    return numpy.sum([num**2 for num in x])
 
 def booth(x, y):
     '''
