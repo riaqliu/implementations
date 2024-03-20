@@ -31,7 +31,7 @@ def mutation(population:list[Point], rand:float = 0.5):
         newPopulation.append([v + uniform(-rand,rand) for v in p])
     return newPopulation
 
-def run_genetic_algo(fitnessFunction:Callable,
+def genetic(fitnessFunction:Callable,
                      generation_count:int,
                      generation_limit:int,
                      generation_x_range:tuple[int,int] = (-1,1),
@@ -79,7 +79,7 @@ def run_genetic_algo(fitnessFunction:Callable,
 
 if __name__ == "__main__":
 
-    run_genetic_algo(mccormick,
+    genetic(mccormick,
                      100,
                      10000,
                      generation_x_range=(-1.5, 4),

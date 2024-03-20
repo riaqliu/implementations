@@ -13,9 +13,12 @@ from math import ceil
 from random import choice, uniform
 from typing import Callable
 
+def calculate_attraction():
+    pass
+
 
 # GEN ALGO BASIC IMP
-def run_genetic_algo(fitnessFunction:Callable,
+def firefly(fitnessFunction:Callable,
                      generation_count:int,
                      generation_limit:int,
                      generation_x_range:tuple[int,int] = (-1,1),
@@ -40,7 +43,9 @@ def run_genetic_algo(fitnessFunction:Callable,
     color_map_points(population, fitnessFunction, xrange=plot_xrange, yrange=plot_yrange)
 
     for i in range(generation_limit):
-        pass
+        print(f"loop {i} best: {get_value(fitnessFunction, peak)}")
+
+
     peak = sorted(population, key=lambda ind: fitnessFunction(*ind))[0]
     print(get_value(fitnessFunction,peak))
 
@@ -50,7 +55,7 @@ def run_genetic_algo(fitnessFunction:Callable,
 
 if __name__ == "__main__":
 
-    run_genetic_algo(mccormick,
+    firefly(mccormick,
                      100,
                      10000,
                      generation_x_range=(-1.5, 4),
