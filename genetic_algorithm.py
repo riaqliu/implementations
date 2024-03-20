@@ -80,11 +80,11 @@ def genetic(fitnessFunction:Callable,
 if __name__ == "__main__":
 
     genetic(mccormick,
-                     100,
-                     10000,
-                     generation_x_range=(-1.5, 4),
-                     generation_y_range=(-3, 4),
-                    #  plot_xrange=(0,0),
-                    #  plot_yrange=(0,0),
-                     mutation_chance=0.001,
-                     )
+            100,
+            10000,
+            generation_x_range=(-1.5, 4),
+            generation_y_range=(-3, 4),
+            #  plot_xrange=(0,0),
+            #  plot_yrange=(0,0),
+            mutation_chance=0.001,
+            )
