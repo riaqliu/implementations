@@ -7,7 +7,7 @@ sys.path.append('display.py')
 from test import bukin_n6, easom, goldstein_price, himmelblaus, mccormick, sphere,booth, three_hump_camel
 from display import color_map_points
 from structs import Point
-from general import generate_initial_population
+from general import generate_initial_population, get_value
 
 from math import ceil
 from random import choice, uniform
@@ -15,9 +15,6 @@ from typing import Callable
 
 
 # GEN ALGO BASIC IMP
-def get_value(type:Callable, point: Point):
-    return (type(*point), *point)
-
 def crossover(parents:list[Point], generation_count:int):
     # Get all solutions
     solutions = []
