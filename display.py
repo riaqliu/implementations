@@ -1,6 +1,8 @@
 import sys
 sys.path.append('structs.py')
+sys.path.append('general.py')
 from structs import Point
+from general import catch_zero_error
 
 from matplotlib import pyplot as plt, cm
 import matplotlib
@@ -21,11 +23,6 @@ def plot_points(arr:list[Point], xrange:tuple[int,int]=(-10,10), yrange:tuple[in
     plt.xlim(*xrange)
     plt.ylim(*yrange)
     plt.show()
-
-def catch_zero_error(i):
-    if i == 0:
-        return 1e-99
-    return i
 
 def color_map_points(arr:list[Point], fitnessFunction:Callable,  xrange:tuple[int,int]=(-10,10), yrange:tuple[int,int]=(-10,10)):
     # Sample data

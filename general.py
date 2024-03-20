@@ -9,3 +9,8 @@ def generate_initial_population(generationCount:int = 10, x_range:tuple[int,int]
 
 def get_value(type:Callable, point: Point):
     return (type(*point), *point)
+
+def catch_zero_error(i):
+    if i == 0:
+        return 1e-99
+    return i
