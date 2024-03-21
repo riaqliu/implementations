@@ -8,7 +8,7 @@ sys.path.append('printing.py')
 sys.path.append('structs.py')
 sys.path.append('display.py')
 from test import bukin_n6, easom, goldstein_price, himmelblaus, mccormick, sphere,booth, three_hump_camel
-from display import color_map_points
+from display import color_map_points, print_points
 from structs import Point
 from general import generate_initial_population, get_value, catch_zero_error
 
@@ -27,15 +27,18 @@ def calculate_attraction(
     '''
     NOTE: is an implementation of the main update formula for firefly algorithm.
     The following are descriptions for each parameter
-        - beta_0 is the attractiveness coefficient magnitude
+        - beta_0 is the attractiveness coefficient magnitude // higher value means more attracted to high-intensity fireflies
         - gamma is the light absorption rate // higher value means higher decay rate with distance
-        - alpha controls step-size
-        - elof is a vector drawn from a distribution
+        - alpha controls randomization step-size
+        - elof is a random vector drawn from a distribution
     '''
 
     vecSelf = array(f_i[1])
     velocity = zeros(2)
-    elof = array([elofDist(), elofDist()])
+    if elofDist == uniform:
+        elof = array([uniform(-1,1), uniform(-1,1)])
+    else:
+        elof = array([elofDist(), elofDist()])
     for f_j in population:
         if f_j[0] > f_i[0]:   # check if the target firefly has higher intensity
             vecTarget = array(f_j[1])
@@ -48,7 +51,9 @@ def calculate_attraction(
     return Point([*velocity])
 
 def calculate_intensities(population:list[Point], fitnessFunction:Callable):
-    return [ (1/catch_zero_error(fitnessFunction(*[float64(px) for px in p])), p) for p in population ]
+    pop = [ (fitnessFunction(*[float64(px) for px in p]), p) for p in population ]
+    popValueMin = sorted(pop, key=lambda p: p[0])[-1][0]
+    return sorted([ (abs(p[0]-popValueMin), p[1]) for p in pop ], reverse=True)
 
 # FIREFLY ALGO BASIC IMP
 def firefly(fitnessFunction:Callable,
@@ -57,7 +62,7 @@ def firefly(fitnessFunction:Callable,
                     generation_x_range:tuple[int,int] = (-1,1),
                     generation_y_range:tuple[int,int] = None,
                     distribution:Callable = gauss,
-                    beta_0= 0.1,
+                    beta_0= 0.5,
                     gamma= 0.05,
                     alpha= 0.01,
                     plot_xrange:tuple[int,int] = None,
@@ -77,6 +82,7 @@ def firefly(fitnessFunction:Callable,
         plot_yrange = plot_xrange
     color_map_points(population, fitnessFunction, xrange=plot_xrange, yrange=plot_yrange)
     print(f"loop {-1} best: {get_value(fitnessFunction, peak)}")
+    # print_points(population, fitnessFunction)
 
     for i in range(generation_limit):
         # attach intensities
@@ -101,15 +107,15 @@ def firefly(fitnessFunction:Callable,
 
 
 if __name__ == "__main__":
-    firefly(himmelblaus,
-            10,
+    firefly(mccormick,
+            20,
             10000,
-            generation_x_range=(-5, 5),
-            # generation_y_range=(-3, 4),
+            generation_x_range=(-1.5,4),
+            generation_y_range=(-3, 4),
             #  plot_xrange=(0,0),
             #  plot_yrange=(0,0),
             distribution=gauss,
             beta_0  = 0.1,
             gamma   = 0.001,
-            alpha   = 0.001,
+            alpha   = 0.0005,
             )
