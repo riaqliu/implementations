@@ -1,7 +1,8 @@
 from __future__ import annotations
 import sys
 
-from numpy import array, zeros
+from numpy import array, float64, zeros
+import numpy
 sys.path.append('test.py')
 sys.path.append('printing.py')
 sys.path.append('structs.py')
@@ -16,15 +17,15 @@ from random import choice, gauss, uniform
 from typing import Callable
 
 def calculate_distance(x1, y1, x2, y2):
-    return sqrt((x2 - x1)**2 + (y2 - y1)**2)
+    return numpy.sqrt(float64((x2 - x1)**2 + (y2 - y1)**2))
 
 def calculate_attraction(
         population:list,
         f_i:tuple,
         beta_0:float = 0.1,
-        gamma:float = 0,
-        alpha:float = 0.0001,
-        elof:array = array([gauss(), gauss()])
+        gamma:float = 0.05,
+        alpha:float = 0.01,
+        elofDist:Callable = gauss
         ):
     '''
     NOTE: is an implementation of the main update formula for firefly algorithm.
@@ -37,10 +38,11 @@ def calculate_attraction(
 
     vecSelf = array(f_i[1])
     velocity = zeros(2)
+    elof = array([elofDist(), elofDist()])
     for f_j in population:
         if f_j[0] > f_i[0]:   # check if the target firefly has higher intensity
             vecTarget = array(f_j[1])
-            coeff = beta_0 * exp(-gamma * calculate_distance(*f_i[1],*f_j[1])**2)
+            coeff = (f_j[0]/f_i[0]) * exp(-gamma * calculate_distance(*f_i[1],*f_j[1])**2)
             distance = vecTarget - vecSelf
             velocity += coeff * distance
 
@@ -49,16 +51,20 @@ def calculate_attraction(
     return Point([*velocity])
 
 def calculate_intensities(population:list[Point], fitnessFunction:Callable):
-    return [ (1/catch_zero_error(fitnessFunction(*p)), p) for p in population ]
+    return [ (1/catch_zero_error(fitnessFunction(*[float64(px) for px in p])), p) for p in population ]
 
 # FIREFLY ALGO BASIC IMP
 def firefly(fitnessFunction:Callable,
-                     generation_count:int,
-                     generation_limit:int,
-                     generation_x_range:tuple[int,int] = (-1,1),
-                     generation_y_range:tuple[int,int] = None,
-                     plot_xrange:tuple[int,int] = None,
-                     plot_yrange:tuple[int,int] = None,
+                    generation_count:int,
+                    generation_limit:int,
+                    generation_x_range:tuple[int,int] = (-1,1),
+                    generation_y_range:tuple[int,int] = None,
+                    distribution:Callable = gauss,
+                    beta_0= 0.1,
+                    gamma= 0.05,
+                    alpha= 0.01,
+                    plot_xrange:tuple[int,int] = None,
+                    plot_yrange:tuple[int,int] = None,
                      ):
 
     # Spawn initial point population
@@ -80,10 +86,17 @@ def firefly(fitnessFunction:Callable,
         population_intensities = calculate_intensities(population, fitnessFunction)
 
         # calculate attraction for each firefly
-        population = [calculate_attraction(population_intensities, f) for f in population_intensities]
+        population = [calculate_attraction(
+            population_intensities,
+            f,
+            beta_0=beta_0,
+            gamma=gamma,
+            alpha=alpha,
+            elofDist=distribution
+            ) for f in population_intensities]
         peak = sorted(population, key=lambda ind: fitnessFunction(*ind))[0]
 
-        # print(f"loop {i} best: {get_value(fitnessFunction, peak)}")
+        print(f"loop {i} best: {get_value(fitnessFunction, peak)}")
 
     # Display
     print(get_value(fitnessFunction,peak))
@@ -92,10 +105,14 @@ def firefly(fitnessFunction:Callable,
 
 if __name__ == "__main__":
     firefly(sphere,
-            100,
-            100,
+            10,
+            100000,
             generation_x_range=(-100, 100),
             # generation_y_range=(-3, 4),
             #  plot_xrange=(0,0),
             #  plot_yrange=(0,0),
+            distribution=gauss,
+            beta_0  = 0.1,
+            gamma   = 0.001,
+            alpha   = 0.001,
             )
