@@ -16,9 +16,6 @@ from math import ceil, exp, sqrt
 from random import choice, gauss, uniform
 from typing import Callable
 
-def calculate_distance(x1, y1, x2, y2):
-    return numpy.sqrt(float64((x2 - x1)**2 + (y2 - y1)**2))
-
 def calculate_attraction(
         population:list,
         f_i:tuple,
@@ -42,9 +39,9 @@ def calculate_attraction(
     for f_j in population:
         if f_j[0] > f_i[0]:   # check if the target firefly has higher intensity
             vecTarget = array(f_j[1])
-            coeff = (f_j[0]/f_i[0]) * exp(-gamma * calculate_distance(*f_i[1],*f_j[1])**2)
-            distance = vecTarget - vecSelf
-            velocity += coeff * distance
+            difference = vecTarget - vecSelf
+            coeff = beta_0 * exp(-gamma * numpy.linalg.norm(difference))
+            velocity += coeff * difference
 
     velocity += vecSelf + alpha*elof # allows the brightest fireflies to move randomly
 
@@ -104,10 +101,10 @@ def firefly(fitnessFunction:Callable,
 
 
 if __name__ == "__main__":
-    firefly(sphere,
+    firefly(himmelblaus,
             10,
-            100000,
-            generation_x_range=(-100, 100),
+            10000,
+            generation_x_range=(-5, 5),
             # generation_y_range=(-3, 4),
             #  plot_xrange=(0,0),
             #  plot_yrange=(0,0),
