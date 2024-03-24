@@ -34,15 +34,15 @@ def mutation(population:list[Point], rand:float = 0.5):
 
 
 def genetic(fitnessFunction:Callable,
-                     generation_count:int,
-                     generation_limit:int,
-                     generation_x_range:tuple[int,int] = (-1,1),
-                     generation_y_range:tuple[int,int] = None,
-                     mutation_chance:float = 0.01,
-                     thresholder_count:int = None,
-                     plot_xrange:tuple[int,int] = None,
-                     plot_yrange:tuple[int,int] = None,
-                     ):
+            generation_count:int,
+            generation_limit:int,
+            generation_x_range:tuple[int,int] = (-1,1),
+            generation_y_range:tuple[int,int] = None,
+            mutation_chance:float = 0.01,
+            thresholder_count:int = None,
+            plot_xrange:tuple[int,int] = None,
+            plot_yrange:tuple[int,int] = None,
+            ):
 
     # Spawn initial point population
     if generation_y_range == None:

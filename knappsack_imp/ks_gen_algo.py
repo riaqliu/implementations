@@ -63,11 +63,10 @@ def ks_genetic(
     # print(population)
 
     for i in range(generationLimit):
-        # select for fitness
+        # select for fitness and apply elitism
         parents = sorted(population, key=lambda genome: fitness_function(genome, geneList, weightLimit), reverse=True)[:2]
         best = parents[0]
 
-        # apply elitism
         print(f"loop {i} best: '{best}' || value: {fitness_function(best, geneList, weightLimit)}")
 
         # crossover

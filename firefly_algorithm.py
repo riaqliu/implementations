@@ -60,17 +60,17 @@ def calculate_intensities(population:list[Point], fitnessFunction:Callable):
 
 # FIREFLY ALGO BASIC IMP
 def firefly(fitnessFunction:Callable,
-                    generation_count:int,
-                    generation_limit:int,
-                    generation_x_range:tuple[int,int] = (-1,1),
-                    generation_y_range:tuple[int,int] = None,
-                    distribution:Callable = gauss,
-                    beta_0= 0.5,
-                    gamma= 0.05,
-                    alpha= 0.01,
-                    plot_xrange:tuple[int,int] = None,
-                    plot_yrange:tuple[int,int] = None,
-                     ):
+            generation_count:int,
+            generation_limit:int,
+            generation_x_range:tuple[int,int] = (-1,1),
+            generation_y_range:tuple[int,int] = None,
+            distribution:Callable = gauss,
+            beta_0= 0.5,
+            gamma= 0.05,
+            alpha= 0.01,
+            plot_xrange:tuple[int,int] = None,
+            plot_yrange:tuple[int,int] = None,
+                ):
 
     # Spawn initial point population
     if generation_y_range == None:
