@@ -16,6 +16,7 @@ from math import ceil, exp, sqrt
 from random import choice, gauss, uniform
 from typing import Callable
 
+
 def calculate_attraction(
         population:list,
         f_i:tuple,
@@ -50,10 +51,12 @@ def calculate_attraction(
 
     return Point([*velocity])
 
+
 def calculate_intensities(population:list[Point], fitnessFunction:Callable):
     fitnessValues = [(fitnessFunction(*map(float64, p)), p) for p in population]
     lowestValue = max(fitnessValues, key=lambda p: p[0])[0]
     return sorted([ (abs(p[0]-lowestValue), p[1]) for p in fitnessValues ], reverse=True)
+
 
 # FIREFLY ALGO BASIC IMP
 def firefly(fitnessFunction:Callable,

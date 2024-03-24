@@ -10,8 +10,8 @@ def get_items(genome:str, geneList:list[Thing]):
 
 
 def generate_initial_population(populationCount:int = 10, genomeLength:int = 10):
-    # return [''.join('0' for _ in range(genomeLength)) for _ in range(populationCount)]
     return [''.join(str(random.choice([1,0])) for _ in range(genomeLength)) for _ in range(populationCount)]
+
 
 def crossover(parents:List[str], generationTarget:int):
     # apply single-point crossover
@@ -23,6 +23,7 @@ def crossover(parents:List[str], generationTarget:int):
         newPopulation.append(child)
     return newPopulation
 
+
 def mutation(generation:List[str], mutationChance:float = 0.5):
     newGeneration = []
     genomeLen = len(generation[0])
@@ -33,18 +34,22 @@ def mutation(generation:List[str], mutationChance:float = 0.5):
         newGeneration.append(newGenome)
     return newGeneration
 
+
 def get_value(genome:str, itemList:list[Thing]):
     if len(genome) != len(itemList):
         raise ValueError("Genome and itemList must be of the same length")
     return sum([itemList[i][1] for i, gene in enumerate(genome) if gene == '1'])
+
 
 def get_weight(genome:str, itemList:list[Thing]):
     if len(genome) != len(itemList):
         raise ValueError("Genome and itemList must be of the same length")
     return sum([itemList[i][2] for i, gene in enumerate(genome) if gene == '1'])
 
+
 def fitness_function(genome:str, itemList:list[Thing], weightLimit = inf):
     return get_value(genome, itemList) if get_weight(genome, itemList) <= weightLimit else 0
+
 
 def ks_genetic(
     geneList:list[Thing],
@@ -52,7 +57,7 @@ def ks_genetic(
     generationLimit:int = 10,
     mutationChance:float = 0.5,
     weightLimit:int = inf
-):
+    ):
     # initialize population
     population = generate_initial_population(populationCount, len(geneList))
     # print(population)
@@ -72,7 +77,6 @@ def ks_genetic(
         population = mutation(population, mutationChance)
 
     print(f"final best: '{get_items(best, geneList=geneList)}' || value: {get_value(best, geneList)}/ weight: {get_weight(best, geneList)}")
-
 
 
 if __name__ == "__main__":
@@ -98,7 +102,7 @@ if __name__ == "__main__":
 
     ks_genetic(
         items2,
-        10,
+        100,
         100,
         weightLimit=3000
     )

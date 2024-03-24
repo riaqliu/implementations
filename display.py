@@ -24,6 +24,7 @@ def plot_points(arr:list[Point], xrange:tuple[int,int]=(-10,10), yrange:tuple[in
     plt.ylim(*yrange)
     plt.show()
 
+
 def color_map_points(arr:list[Point], fitnessFunction:Callable,  xrange:tuple[int,int]=(-10,10), yrange:tuple[int,int]=(-10,10)):
     # Sample data
     data = array(arr)
@@ -43,6 +44,7 @@ def color_map_points(arr:list[Point], fitnessFunction:Callable,  xrange:tuple[in
     plt.xlim(*xrange)
     plt.ylim(*yrange)
     plt.show()
+
 
 def print_points(arr:list[Point], fit_func:Callable):
     line = "====="

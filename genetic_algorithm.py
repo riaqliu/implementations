@@ -25,11 +25,13 @@ def crossover(parents:list[Point], generation_count:int):
     # Create new generation with a mixture of parent solutions
     return [Point([choice(solutions), choice(solutions)]) for _ in range(generation_count)]
 
+
 def mutation(population:list[Point], rand:float = 0.5):
     newPopulation = []
     for p in population:
         newPopulation.append([v + uniform(-rand,rand) for v in p])
     return newPopulation
+
 
 def genetic(fitnessFunction:Callable,
                      generation_count:int,
