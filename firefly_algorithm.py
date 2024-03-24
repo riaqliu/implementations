@@ -51,9 +51,9 @@ def calculate_attraction(
     return Point([*velocity])
 
 def calculate_intensities(population:list[Point], fitnessFunction:Callable):
-    pop = [ (fitnessFunction(*[float64(px) for px in p]), p) for p in population ]
-    popValueMin = sorted(pop, key=lambda p: p[0])[-1][0]
-    return sorted([ (abs(p[0]-popValueMin), p[1]) for p in pop ], reverse=True)
+    fitnessValues = [(fitnessFunction(*map(float64, p)), p) for p in population]
+    lowestValue = max(fitnessValues, key=lambda p: p[0])[0]
+    return sorted([ (abs(p[0]-lowestValue), p[1]) for p in fitnessValues ], reverse=True)
 
 # FIREFLY ALGO BASIC IMP
 def firefly(fitnessFunction:Callable,
@@ -107,15 +107,15 @@ def firefly(fitnessFunction:Callable,
 
 
 if __name__ == "__main__":
-    firefly(mccormick,
+    firefly(easom,
             20,
             10000,
-            generation_x_range=(-1.5,4),
-            generation_y_range=(-3, 4),
+            generation_x_range=(-100,100),
+            # generation_y_range=(-3, 4),
             #  plot_xrange=(0,0),
             #  plot_yrange=(0,0),
             distribution=gauss,
-            beta_0  = 0.1,
+            beta_0  = 0.005,
             gamma   = 0.001,
             alpha   = 0.0005,
             )
