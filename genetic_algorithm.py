@@ -52,13 +52,13 @@ def genetic(fitnessFunction:Callable,
         plot_xrange = generation_x_range
     if plot_yrange == None:
         plot_yrange = plot_xrange
+    if thresholder_count == None:
+        top = ceil(int(generation_count * 0.2))
     # plot_points(population, xrange=plot_xrange, yrange=plot_yrange)
     color_map_points(population, fitnessFunction, xrange=plot_xrange, yrange=plot_yrange)
 
     for i in range(generation_limit):
         # select for fitness
-        if thresholder_count == None:
-            top = ceil(int(generation_count * 0.2))
         parents = sorted(population, key=lambda ind: fitnessFunction(*ind))[:top]
         print(f"loop {i} best: {get_value(fitnessFunction, peak)}")
 
