@@ -130,10 +130,10 @@ if __name__ == "__main__":
 
     ks_firefly(
         items2,
-        10,
+        15,
         1000,
-        beta_0= 0.02,
-        gamma= 0.005,
-        alpha= 0.1,
+        beta_0= 0.06,
+        gamma= 0.0005,
+        alpha= 0.3,
         weightLimit=3000
     )

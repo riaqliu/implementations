@@ -110,15 +110,15 @@ def firefly(fitnessFunction:Callable,
 
 
 if __name__ == "__main__":
-    firefly(easom,
+    firefly(mccormick,
             20,
             10000,
-            generation_x_range=(-100,100),
-            # generation_y_range=(-3, 4),
+            generation_x_range=(-1.5,3),
+            generation_y_range=(-3, 4),
             #  plot_xrange=(0,0),
             #  plot_yrange=(0,0),
             distribution=gauss,
             beta_0  = 0.005,
             gamma   = 0.001,
-            alpha   = 0.0005,
+            alpha   = 0.001,
             )
