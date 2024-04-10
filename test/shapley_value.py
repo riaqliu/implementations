@@ -1,10 +1,13 @@
 
+from collections import namedtuple
 from math import factorial
-from numpy import average
 
 
-def get_marginal_contribution(coalitionValues:list[tuple[set,int]], player, players):
-    coalitions, values = zip(*coalitionValues)
+coalitionValues = namedtuple('CoalitionValues', ['cvs', 'players'])
+
+
+def get_marginal_contribution(cv:list[tuple[set,int]], player, players):
+    coalitions, values = zip(*cv)
     contributions = []
     for i1, c in enumerate(coalitions):
         if player in c:
@@ -18,14 +21,21 @@ def get_marginal_contribution(coalitionValues:list[tuple[set,int]], player, play
             contributions.append((values[i1]-values[i2])*weight)
     return sum(contributions)
 
+def shapley(cv:coalitionValues):
+    shapleyValues = []
+    for p in cv.players:
+        shapleyValues.append(get_marginal_contribution(cv.cvs, p, cv.players))
+    print(shapleyValues)
+
 if __name__ == "__main__":
+    p1 = {1,2}
+    p2 = {1,2,3}
     cv1 = [
         ({1,2}, 10000),
         ({1}, 7500),
         ({2}, 5000),
         (set(), 0)
     ]
-
     cv2 = [
         ({1,2,3}, 10000),
         (set(), 0),
@@ -37,10 +47,10 @@ if __name__ == "__main__":
         ({3}, 0),
     ]
 
-    players = {1,2,3}
-    k1 = get_marginal_contribution(cv2, 1, players)
-    k2 = get_marginal_contribution(cv2, 2, players)
-    k3 = get_marginal_contribution(cv2, 3, players)
-    print(k1,k2,k3)
+    cv1 = coalitionValues(cv1, p1)
+    cv2 = coalitionValues(cv2, p2)
+
+    shapley(cv2)
+
     # a = [0.3333333333333333, 0.3333333333333333, 0.16666666666666666, 0.16666666666666666]
     # print(sum(a))
