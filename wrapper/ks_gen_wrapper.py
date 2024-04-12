@@ -1,9 +1,12 @@
+from copy import deepcopy
 from random import choice, randint, random
 from typing import List
 from sklearn.datasets import load_breast_cancer, load_diabetes, load_iris, load_wine
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import RandomForestClassifier
 import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 
 
@@ -25,7 +28,7 @@ def generate_initial_population(length:int, count:int):
 
     return population
 
-def crossover_and_mutate(parents:List, generation_target:int, mutation_chance:float = 0.5):
+def crossover_and_mutate(parents:List, generation_target:int, mutation_chance:float):
     alpha, beta = parents[0], parents[1]
     new_population = parents
     genome_length = len(alpha)
@@ -39,8 +42,8 @@ def crossover_and_mutate(parents:List, generation_target:int, mutation_chance:fl
     for child in new_population:
         # apply single gene mutation
         m = randint(0,genome_length-1)
-        new_child = child[:m] + [(child[m] if random() > mutation_chance else abs(child[m]-1))]
-        new_child += child[m+1:] if m < genome_length-1 else []
+        new_child = deepcopy(child)
+        new_child[m] = child[m] if random() > mutation_chance else abs(child[m]-1)
         population.append(new_child)
     return population
 
@@ -63,10 +66,13 @@ def main():
 
     # Define the machine learning model (in this case, a Random Forest Classifier)
     model = RandomForestClassifier()
+    # model = KNeighborsClassifier()
     # model = SVC()
+    # model = LogisticRegression()
     evaluated_bit_strings = {}
     population_count = 100
     population = generate_initial_population(bit_length, population_count)
+    mutation_chance = 0.5
     parents = None
 
     # Loop
@@ -78,7 +84,7 @@ def main():
         if parents != None:
             # Create new population
             # print('parents', parents)
-            population = crossover_and_mutate(parents, population_count)
+            population = crossover_and_mutate(parents, population_count, mutation_chance)
 
             # Cull strings without any feature
             population = [ind for ind in population if 1 in ind]
@@ -114,7 +120,7 @@ def main():
             if current_best_score > best_score:
                 best_bit_string = current_best_bit_string
                 best_score = current_best_score
-            print(f"[{loop}] Current best feature set {arr_bit_to_string(current_best_bit_string)}, Mean Accuracy: {current_best_score:.4f} // saved: {len(evaluated_bit_strings)}")
+                print(f"[{loop}] Current best feature set {arr_bit_to_string(current_best_bit_string)}, Mean Accuracy: {current_best_score:.4f} // saved: {len(evaluated_bit_strings)}")
 
     print(f"Selected feature indices: {arr_bit_to_feature_set(best_bit_string)} : Mean Accuracy: {best_score:.4f} // saved: {len(evaluated_bit_strings)}")
     # print(evaluated_bit_strings)
