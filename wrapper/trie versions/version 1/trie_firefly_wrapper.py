@@ -9,6 +9,8 @@ from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
+from trie_test import *
+from timeit import default_timer as timer    
 
 
 def arr_bit_to_string(arr):
@@ -31,6 +33,9 @@ def generate_initial_population(length:int, count:int):
 
     return population
 
+def calculate_attraction():
+    pass
+
 def main():
     dataset = load_wine()
     # Replace this with your dataset and labels
@@ -52,7 +57,6 @@ def main():
     # model = KNeighborsClassifier()
     # model = SVC()
     # model = LogisticRegression()
-    evaluated_bit_strings = {}
     population_count = 15
     population = generate_initial_population(bit_length, population_count)
     streak = 0
@@ -60,10 +64,13 @@ def main():
     beta_0 = 0.06
     gamma = 0.0005
     alpha = 0.3
+    head = create_trie_node('', None)
 
     last_best_score = -1
+    start = timer()
     # Loop
     for loop in range(1000):
+        print(loop)
         current_best_score = -1
         current_best_bit_string = None
         scored_bit_strings = []
@@ -72,10 +79,10 @@ def main():
         for bit_string in population:
             rounded_bit_string = rounded(bit_string)
             stringified = arr_bit_to_string(rounded_bit_string)
-            if stringified in evaluated_bit_strings:
-                # keep track of already evaluated strings
-                mean_score = evaluated_bit_strings.get(stringified)
-            else:
+            
+            # keep track of already evaluated strings
+            mean_score = get_value(stringified, head)
+            if not mean_score:
                 # calculate scores for newly seen strings
                 if 1 in rounded_bit_string:
                     scores = cross_val_score(model, X[:, arr_bit_to_feature_set(rounded_bit_string)], y, cv=5, scoring='accuracy')
@@ -83,7 +90,7 @@ def main():
                 else:
                     # Disregard strings without any features
                     mean_score = 0
-                evaluated_bit_strings[stringified] = mean_score
+                insert_nodes(stringified, head)
             scored_bit_strings.append((bit_string, mean_score))
 
             # Keep track of the best-performing feature set
@@ -117,7 +124,8 @@ def main():
                 best_bit_string = current_best_bit_string
                 best_score = current_best_score
                 streak = 0
-                print(f"[{loop}] Current best feature set {arr_bit_to_string(rounded(current_best_bit_string))}, Mean Accuracy: {current_best_score:.4f} // saved: {len(evaluated_bit_strings)}")
+                print(f"[{loop}] Current best feature set {arr_bit_to_string(rounded(current_best_bit_string))}, Mean Accuracy: {current_best_score:.4f} // time since last best: {(timer() - start):.4f}s")
+                start = timer()
             if last_best_score == current_best_score:
                     streak += 1
 
@@ -126,7 +134,8 @@ def main():
         if streak > threshold:
             print("Maximum recurring best string value repetition reached!")
             break
-    print(f"Selected feature indices: {arr_bit_to_feature_set(rounded(best_bit_string))} : Mean Accuracy: {best_score:.4f} // saved: {len(evaluated_bit_strings)}")
+    print(f"Selected feature indices: {arr_bit_to_feature_set(rounded(best_bit_string))} : Mean Accuracy: {best_score:.4f}")
+    print(head)
 
 
 if __name__ == "__main__":

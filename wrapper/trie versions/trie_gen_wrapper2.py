@@ -9,6 +9,45 @@ from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
+from timeit import default_timer as timer
+
+# ========================================================================================
+# Trie implementation vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# ========================================================================================
+
+class SBTN():
+    '''
+        Scored Bit Trie Node
+    '''
+    features = '01'
+    def __init__(self) -> None:
+        self.end = False
+        self.score = None
+        self.children = [None for _ in range(len(self.features))]
+
+    def insert_key(self, key:str, score:int):
+        currentNode = self
+        for c in key:
+            n = SBTN.features.find(c)
+            if currentNode.children[n] == None:
+                newNode = SBTN()
+                currentNode.children[n] = newNode
+            currentNode = currentNode.children[n]
+        currentNode.end = True
+        currentNode.score = score
+
+    def get_key_score(self, key:str):
+        currentNode = self
+        for c in key:
+            n = SBTN.features.find(c)
+            if currentNode.children[n] == None:
+                return None
+            currentNode = currentNode.children[n]
+        return currentNode.score if currentNode.end else None
+
+# ========================================================================================
+# Trie implementation ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# ========================================================================================
 
 
 def arr_bit_to_string(arr):
@@ -70,12 +109,13 @@ def main():
     # model = KNeighborsClassifier()
     # model = SVC()
     # model = LogisticRegression()
-    evaluated_bit_strings = {}
+    head_node = SBTN()
     population_count = 100
     population = generate_initial_population(bit_length, population_count)
     mutation_chance = 0.5
     parents = None
-
+    
+    start = timer()
     # Loop
     for loop in range(1000):
         current_best_score = -1
@@ -92,15 +132,13 @@ def main():
         for bit_string in population:
             # Evaluate the model's performance using cross-validation
             stringified = arr_bit_to_string(bit_string)
-            if stringified in evaluated_bit_strings:
-                # keep track of already evaluated strings
-                mean_score = evaluated_bit_strings.get(stringified)
-            else:
+            mean_score = head_node.get_key_score(stringified)
+            # raise Exception(mean_score)
+            if mean_score == None:
                 # calculate scores for newly seen strings
                 scores = cross_val_score(model, X[:, arr_bit_to_feature_set(bit_string)], y, cv=5, scoring='accuracy')
                 mean_score = np.mean(scores)
-                evaluated_bit_strings[stringified] = mean_score
-
+                head_node.insert_key(stringified, mean_score)
             ranked_bit_strings.append((bit_string, mean_score))
 
             # Keep track of the best-performing feature set
@@ -117,10 +155,10 @@ def main():
             if current_best_score > best_score:
                 best_bit_string = current_best_bit_string
                 best_score = current_best_score
-                print(f"[{loop}] Current best feature set {arr_bit_to_string(current_best_bit_string)}, Mean Accuracy: {current_best_score:.4f} // saved: {len(evaluated_bit_strings)}")
+                print(f"[{loop}] Current best feature set {arr_bit_to_string(current_best_bit_string)}, Mean Accuracy: {current_best_score:.4f} // time since last best: {(timer() - start):.4f}s")
+                start = timer()
 
-    print(f"Selected feature indices: {arr_bit_to_feature_set(best_bit_string)} : Mean Accuracy: {best_score:.4f} // saved: {len(evaluated_bit_strings)}")
-    # print(f"Size of dictionary: {getsizeof(evaluated_bit_strings)} bytes")
+    print(f"Selected feature indices: {arr_bit_to_feature_set(best_bit_string)} : Mean Accuracy: {best_score:.4f}")
 
 
 if __name__ == "__main__":

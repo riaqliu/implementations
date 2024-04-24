@@ -1,6 +1,5 @@
 from copy import deepcopy
 from random import choice, randint, random
-from sys import getsizeof
 from typing import List
 from sklearn.datasets import load_breast_cancer, load_diabetes, load_iris, load_wine
 from sklearn.linear_model import LogisticRegression
@@ -9,6 +8,8 @@ from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
+from trie_test import *
+from timeit import default_timer as timer    
 
 
 def arr_bit_to_string(arr):
@@ -44,7 +45,7 @@ def crossover_and_mutate(parents:List, generation_target:int, mutation_chance:fl
         # apply single gene mutation
         m = randint(0,genome_length-1)
         new_child = deepcopy(child)
-        new_child[m] = child[m] if random() > mutation_chance else abs(child[m]-1)
+        new_child[m] = child[m] if random.random() > mutation_chance else abs(child[m]-1)
         population.append(new_child)
     return population
 
@@ -70,14 +71,16 @@ def main():
     # model = KNeighborsClassifier()
     # model = SVC()
     # model = LogisticRegression()
-    evaluated_bit_strings = {}
-    population_count = 100
+    population_count = 15
     population = generate_initial_population(bit_length, population_count)
     mutation_chance = 0.5
     parents = None
+    head = create_trie_node('', None)
 
+    start = timer() 
     # Loop
     for loop in range(1000):
+        print(loop)
         current_best_score = -1
         current_best_bit_string = None
         ranked_bit_strings = []
@@ -92,14 +95,14 @@ def main():
         for bit_string in population:
             # Evaluate the model's performance using cross-validation
             stringified = arr_bit_to_string(bit_string)
-            if stringified in evaluated_bit_strings:
-                # keep track of already evaluated strings
-                mean_score = evaluated_bit_strings.get(stringified)
-            else:
+
+            # keep track of already evaluated strings
+            mean_score = get_value(stringified, head)
+            if not mean_score:
                 # calculate scores for newly seen strings
                 scores = cross_val_score(model, X[:, arr_bit_to_feature_set(bit_string)], y, cv=5, scoring='accuracy')
                 mean_score = np.mean(scores)
-                evaluated_bit_strings[stringified] = mean_score
+                insert_nodes(stringified, head)
 
             ranked_bit_strings.append((bit_string, mean_score))
 
@@ -117,10 +120,11 @@ def main():
             if current_best_score > best_score:
                 best_bit_string = current_best_bit_string
                 best_score = current_best_score
-                print(f"[{loop}] Current best feature set {arr_bit_to_string(current_best_bit_string)}, Mean Accuracy: {current_best_score:.4f} // saved: {len(evaluated_bit_strings)}")
+                print(f"[{loop}] Current best feature set {arr_bit_to_string(current_best_bit_string)}, Mean Accuracy: {current_best_score:.4f} // time since last best: {(timer() - start):.4f}s")
+                start = timer()
 
-    print(f"Selected feature indices: {arr_bit_to_feature_set(best_bit_string)} : Mean Accuracy: {best_score:.4f} // saved: {len(evaluated_bit_strings)}")
-    # print(f"Size of dictionary: {getsizeof(evaluated_bit_strings)} bytes")
+    print(f"Selected feature indices: {arr_bit_to_feature_set(best_bit_string)} : Mean Accuracy: {best_score:.4f}")
+    # print(evaluated_bit_strings)
 
 
 if __name__ == "__main__":

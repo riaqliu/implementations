@@ -9,6 +9,46 @@ from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
+from timeit import default_timer as timer
+
+# ========================================================================================
+# Trie implementation vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# ========================================================================================
+
+class SBTN():
+    '''
+        Scored Bit Trie Node
+    '''
+    features = '01'
+    def __init__(self) -> None:
+        self.end = False
+        self.score = None
+        self.children = [None for _ in range(len(self.features))]
+
+    def insert_key(self, key:str, score:int):
+        currentNode = self
+        for c in key:
+            n = SBTN.features.find(c)
+            if currentNode.children[n] == None:
+                newNode = SBTN()
+                currentNode.children[n] = newNode
+            currentNode = currentNode.children[n]
+        currentNode.end = True
+        currentNode.score = score
+
+    def get_key_score(self, key:str):
+        currentNode = self
+        for c in key:
+            n = SBTN.features.find(c)
+            if currentNode.children[n] == None:
+                return None
+            currentNode = currentNode.children[n]
+        return currentNode.score if currentNode.end else None
+
+# ========================================================================================
+# Trie implementation ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# ========================================================================================
+
 
 
 def arr_bit_to_string(arr):
@@ -52,7 +92,7 @@ def main():
     # model = KNeighborsClassifier()
     # model = SVC()
     # model = LogisticRegression()
-    evaluated_bit_strings = {}
+    head_node = SBTN()
     population_count = 15
     population = generate_initial_population(bit_length, population_count)
     streak = 0
@@ -62,6 +102,7 @@ def main():
     alpha = 0.3
 
     last_best_score = -1
+    start = timer()
     # Loop
     for loop in range(1000):
         current_best_score = -1
@@ -72,18 +113,15 @@ def main():
         for bit_string in population:
             rounded_bit_string = rounded(bit_string)
             stringified = arr_bit_to_string(rounded_bit_string)
-            if stringified in evaluated_bit_strings:
-                # keep track of already evaluated strings
-                mean_score = evaluated_bit_strings.get(stringified)
-            else:
+            mean_score = head_node.get_key_score(stringified)
+            if mean_score == None:
                 # calculate scores for newly seen strings
                 if 1 in rounded_bit_string:
                     scores = cross_val_score(model, X[:, arr_bit_to_feature_set(rounded_bit_string)], y, cv=5, scoring='accuracy')
                     mean_score = np.mean(scores)
                 else:
-                    # Disregard strings without any features
                     mean_score = 0
-                evaluated_bit_strings[stringified] = mean_score
+                head_node.insert_key(stringified, mean_score)
             scored_bit_strings.append((bit_string, mean_score))
 
             # Keep track of the best-performing feature set
@@ -117,7 +155,8 @@ def main():
                 best_bit_string = current_best_bit_string
                 best_score = current_best_score
                 streak = 0
-                print(f"[{loop}] Current best feature set {arr_bit_to_string(rounded(current_best_bit_string))}, Mean Accuracy: {current_best_score:.4f} // saved: {len(evaluated_bit_strings)}")
+                print(f"[{loop}] Current best feature set {arr_bit_to_string(rounded(current_best_bit_string))}, Mean Accuracy: {current_best_score:.4f} // time since last best: {(timer() - start):.4f}s")
+                start = timer()
             if last_best_score == current_best_score:
                     streak += 1
 
@@ -126,7 +165,8 @@ def main():
         if streak > threshold:
             print("Maximum recurring best string value repetition reached!")
             break
-    print(f"Selected feature indices: {arr_bit_to_feature_set(rounded(best_bit_string))} : Mean Accuracy: {best_score:.4f} // saved: {len(evaluated_bit_strings)}")
+
+    print(f"Selected feature indices: {arr_bit_to_feature_set(rounded(best_bit_string))} : Mean Accuracy: {best_score:.4f}")
 
 
 if __name__ == "__main__":
