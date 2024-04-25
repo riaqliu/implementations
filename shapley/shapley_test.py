@@ -21,12 +21,21 @@ def get_marginal_contribution(cv:list[tuple[set,int]], player, players):
             contributions.append((values[i1]-values[i2])*weight)
     return sum(contributions)
 
+def print_boundary():
+    print(f"{''.join(['===' for _ in range(20)])}")
+
+
 def shapley(cv:coalitionValues):
-    shapleyValues = []
+    sv_sum = 0
+    print_boundary()
+    print("Feature contributions")
+    print_boundary()
     for p in cv.players:
-        shapleyValues.append((get_marginal_contribution(cv.cvs, p, cv.players), p))
-    print(shapleyValues)
-    print(sum(list(zip(*shapleyValues))[0]))
+        sv = get_marginal_contribution(cv.cvs, p, cv.players)
+        sv_sum += sv
+        print(f"Feature {p}\t:\t{sv}")
+    print_boundary()
+    print(f"SUM: {sv_sum}")
 
 if __name__ == "__main__":
     # k = [0.06316551393932347,
