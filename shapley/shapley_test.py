@@ -24,10 +24,25 @@ def get_marginal_contribution(cv:list[tuple[set,int]], player, players):
 def shapley(cv:coalitionValues):
     shapleyValues = []
     for p in cv.players:
-        shapleyValues.append(get_marginal_contribution(cv.cvs, p, cv.players))
+        shapleyValues.append((get_marginal_contribution(cv.cvs, p, cv.players), p))
     print(shapleyValues)
+    print(sum(list(zip(*shapleyValues))[0]))
 
 if __name__ == "__main__":
+    # k = [0.06316551393932347,
+    #      0.06316551393932347,
+    #      0.06316551393932347,
+    #      0.06316551393932347,
+    #      0.06316551393932347,
+    #      0.023296895784991,
+    #      0.06316551393932347,
+    #      0.023296895784991,
+    #      0.06316551393932347,
+    #      0.06316551393932347,
+    #      0.023296895784991,
+    #      0.023296895784991,
+    #      0.023296895784991]
+    # print(sum(k))
     p1 = {1,2}
     p2 = {1,2,3}
     cv1 = [
