@@ -2,6 +2,7 @@ from copy import deepcopy
 from math import exp, inf
 from random import gauss, randint
 from scipy import linalg
+from sklearn.conftest import fetch_rcv1
 from sklearn.datasets import load_iris, load_wine
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score
@@ -32,20 +33,18 @@ def generate_initial_population(length:int, count:int):
     return population
 
 def main():
-    dataset = load_wine()
+    dataset = fetch_rcv1()
     # Replace this with your dataset and labels
     X = dataset.data
     y = dataset.target
     bit_length = len(dataset.feature_names)
 
-    print('feature names: ',dataset.feature_names)
-    print('target names: ', dataset.target_names)
+    print(f"feature names({len(dataset.feature_names)}): {dataset.feature_names}")
+    print(f"target names({len(dataset.target_names)}): {dataset.target_names}")
 
     # Initialize an empty list to store selected feature indices
     best_bit_string = [ 0 for _ in range(bit_length) ]
     best_score = -1
-
-    print(best_bit_string)
 
     # Define the machine learning model (in this case, a Random Forest Classifier)
     model = RandomForestClassifier()

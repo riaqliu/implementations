@@ -78,14 +78,13 @@ def main():
     y = dataset.target
     bit_length = len(dataset.feature_names)
 
-    print('feature names: ',dataset.feature_names)
-    print('target names: ', dataset.target_names)
+    print(f"feature names({len(dataset.feature_names)}): {dataset.feature_names}")
+    print(f"target names({len(dataset.target_names)}): {dataset.target_names}")
 
     # Initialize an empty list to store selected feature indices
     best_bit_string = [ 0 for _ in range(bit_length) ]
     best_score = -1
 
-    print(best_bit_string)
 
     # Define the machine learning model (in this case, a Random Forest Classifier)
     model = RandomForestClassifier()

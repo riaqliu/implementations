@@ -3,8 +3,7 @@ from copy import deepcopy
 from random import choice, randint, random
 from sys import getsizeof
 from typing import List
-from sklearn.conftest import fetch_rcv1
-from sklearn.datasets import load_breast_cancer, load_diabetes, load_digits, load_iris, load_wine
+from sklearn.datasets import load_breast_cancer, load_diabetes, load_iris, load_wine
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import RandomForestClassifier
@@ -118,12 +117,10 @@ def subsets(A):
 def compute_shapley(selected_features, head_node:SBTN, model, X, y):
     l = len(selected_features)
     # generate all possible subsets
-    print('generating subsets...')
     fs = arr_bit_to_feature_set(selected_features)
     superset = subsets(fs)
 
     # calculate scores
-    print(f"calculating unseen scores... (superset size: {len(superset)})")
     cv = []
     for subset in superset:
         arr = feature_set_to_arr(subset,l)
@@ -138,9 +135,6 @@ def compute_shapley(selected_features, head_node:SBTN, model, X, y):
             head_node.insert_key(stringified, mean_score)
         cv.append((subset, mean_score))
     shap = coalitionValues(cv, fs)
-
-    # calculate shapley
-    print('calculating shapley values...')
     shapley(shap)
 
 # ========================================================================================
@@ -149,19 +143,20 @@ def compute_shapley(selected_features, head_node:SBTN, model, X, y):
 
 
 def main():
-    dataset = load_breast_cancer()
-
+    dataset = load_wine()
     # Replace this with your dataset and labels
     X = dataset.data
     y = dataset.target
     bit_length = len(dataset.feature_names)
 
-    print(f"feature names({len(dataset.feature_names)}): {dataset.feature_names}")
-    print(f"target names({len(dataset.target_names)}): {dataset.target_names}")
+    print('feature names: ',dataset.feature_names)
+    print('target names: ', dataset.target_names)
 
     # Initialize an empty list to store selected feature indices
     best_bit_string = [ 0 for _ in range(bit_length) ]
     best_score = -1
+
+    print(best_bit_string)
 
     # Define the machine learning model (in this case, a Random Forest Classifier)
     model = RandomForestClassifier()
@@ -221,14 +216,11 @@ def main():
     compute_shapley(best_bit_string, head_node, model, X, y)
 
 def test():
-    dataset = load_breast_cancer()
+    dataset = load_wine()
     X = dataset.data
     y = dataset.target
     model = RandomForestClassifier()
-    print(f"feature names({len(dataset.feature_names)}): {dataset.feature_names}")
-    print(f"target names({len(dataset.target_names)}): {dataset.target_names}")
-
-    scores = cross_val_score(model, X[:, :], y, cv=5, scoring='accuracy')
+    scores = cross_val_score(model, X[:, [0,4,6,8,9,10]], y, cv=5, scoring='accuracy')
     print(np.mean(scores))
     pass
 
