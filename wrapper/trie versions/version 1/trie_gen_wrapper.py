@@ -9,7 +9,7 @@ import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from trie_test import *
-from timeit import default_timer as timer    
+from timeit import default_timer as timer
 
 
 def arr_bit_to_string(arr):

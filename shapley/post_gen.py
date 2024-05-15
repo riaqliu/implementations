@@ -8,11 +8,15 @@ from sklearn.datasets import load_breast_cancer, load_diabetes, load_digits, loa
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import RandomForestClassifier
+from ucimlrepo import fetch_ucirepo 
+
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from timeit import default_timer as timer
 from shapley_test import get_marginal_contribution, shapley
+
+import pandas as pd
 
 
 coalitionValues = namedtuple('CoalitionValues', ['cvs', 'players'])
@@ -147,17 +151,20 @@ def compute_shapley(selected_features, head_node:SBTN, model, X, y):
 # Shapley calculation ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # ========================================================================================
 
-
 def main():
-    dataset = load_breast_cancer()
+    # dataset = load_breast_cancer()
 
-    # Replace this with your dataset and labels
-    X = dataset.data
-    y = dataset.target
-    bit_length = len(dataset.feature_names)
+    # # Replace this with your dataset and labels
+    # X = dataset.data
+    # y = dataset.target
+    # bit_length = len(dataset.feature_names)
 
-    print(f"feature names({len(dataset.feature_names)}): {dataset.feature_names}")
-    print(f"target names({len(dataset.target_names)}): {dataset.target_names}")
+    dataset = fetch_ucirepo(id=890)
+    X = dataset.data.features.values
+    y = dataset.data.targets.values.ravel()
+    bit_length = len(dataset.variables) - 2
+
+    # raise Exception()
 
     # Initialize an empty list to store selected feature indices
     best_bit_string = [ 0 for _ in range(bit_length) ]
@@ -221,12 +228,25 @@ def main():
     compute_shapley(best_bit_string, head_node, model, X, y)
 
 def test():
-    dataset = load_breast_cancer()
-    X = dataset.data
-    y = dataset.target
+    # SCIKIT
+    # dataset = load_breast_cancer()
+    # X = dataset.data
+    # y = dataset.target
+
+    # Pandas IRVING
+    dataset = fetch_ucirepo(id=890)
+    X = dataset.data.features.values
+    y = dataset.data.targets.values.ravel()
+
+    # # KAGGLE
+    # data = pd.read_csv('heart.csv')
+    # print(data.head())
+
+    # raise Exception()
+
     model = RandomForestClassifier()
-    print(f"feature names({len(dataset.feature_names)}): {dataset.feature_names}")
-    print(f"target names({len(dataset.target_names)}): {dataset.target_names}")
+    # print(f"feature names({len(dataset.feature_names)}): {dataset.feature_names}")
+    # print(f"target names({len(dataset.target_names)}): {dataset.target_names}")
 
     scores = cross_val_score(model, X[:, :], y, cv=5, scoring='accuracy')
     print(np.mean(scores))
@@ -234,8 +254,8 @@ def test():
 
 
 if __name__ == "__main__":
-    # test()
-    main()
+    test()
+    # main()
     # print(feature_set_to_arr(arr_bit_to_feature_set([0,0,1,0]), 4))
     # Records:
     # @WINE_Database

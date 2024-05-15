@@ -12,6 +12,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from timeit import default_timer as timer
 from shapley_test import get_marginal_contribution, shapley
+from ucimlrepo import fetch_ucirepo 
 
 coalitionValues = namedtuple('CoalitionValues', ['cvs', 'players'])
 
@@ -128,14 +129,19 @@ def compute_shapley(selected_features, head_node:SBTN, model, X, y):
 # ========================================================================================
 
 def main():
-    dataset = load_breast_cancer()
-    # Replace this with your dataset and labels
-    X = dataset.data
-    y = dataset.target
-    bit_length = len(dataset.feature_names)
+    # dataset = load_breast_cancer()
+    # # Replace this with your dataset and labels
+    # X = dataset.data
+    # y = dataset.target
+    # bit_length = len(dataset.feature_names)
 
-    print(f"feature names({len(dataset.feature_names)}): {dataset.feature_names}")
-    print(f"target names({len(dataset.target_names)}): {dataset.target_names}")
+    # print(f"feature names({len(dataset.feature_names)}): {dataset.feature_names}")
+    # print(f"target names({len(dataset.target_names)}): {dataset.target_names}")
+
+    dataset = fetch_ucirepo(id=890)
+    X = dataset.data.features.values
+    y = dataset.data.targets.values.ravel()
+    bit_length = len(dataset.variables) - 2
 
     # Initialize an empty list to store selected feature indices
     best_bit_string = [ 0 for _ in range(bit_length) ]

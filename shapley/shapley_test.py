@@ -26,12 +26,12 @@ def print_boundary():
 def shapley(cv:coalitionValues):
     sv_sum = 0
     print_boundary()
-    print("Feature contributions")
+    print(f"Feature contributions ({len(cv.players)} players)")
     print_boundary()
     for p in cv.players:
         sv = get_marginal_contribution(cv.cvs, p, cv.players)
         sv_sum += sv
-        print(f"Feature {p}\t:\t{sv}")
+        print(f"Feature_{p}\t\t{sv}")
     print_boundary()
     print(f"SUM: {sv_sum}")
 

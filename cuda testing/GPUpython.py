@@ -1,28 +1,25 @@
-
-from numba import jit
-import numpy as np 
-# to measure exec time 
 from timeit import default_timer as timer
-  
-# normal function to run on cpu 
-def func(a, n):
-    for i in range(n): 
-        a[i]+= 1      
-  
-# function optimized to run on gpu  
-@jit(target_backend='cuda')
-def func2(a, n): 
-    for i in range(n): 
-        a[i]+= 1
 
-if __name__=="__main__": 
-    n = 100000000
-    a = np.ones(n, dtype = np.float64)
+from numba import cuda
+import numpy as np
 
-    start = timer()
-    func(a,n)
-    print("without GPU:", timer()-start)
+@cuda.jit
+def compute_factorials(array):
+    tid = cuda.grid(1)
+    if tid < array.size:
+        n = tid
+        result = 1
+        for i in range(1, n + 1):
+            result *= i
+        array[tid] = result
 
-    start = timer()
-    func2(a,n)
-    print("with GPU:", timer()-start)
+N = 64
+block_size = 256
+num_blocks = (N + block_size - 1) // block_size
+
+d_array = cuda.device_array(N, dtype=np.uint32)
+
+compute_factorials[num_blocks, block_size](d_array)
+
+h_array = d_array.copy_to_host()
+print(h_array)

@@ -1,7 +1,6 @@
 
 from collections import namedtuple
 from math import factorial
-from numba import jit, cuda 
 
 coalitionValues = namedtuple('CoalitionValues', ['cvs', 'players'])
 
