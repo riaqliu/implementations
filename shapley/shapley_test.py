@@ -4,6 +4,7 @@ from math import factorial
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import waterfall_chart
 
 coalitionValues = namedtuple('CoalitionValues', ['cvs', 'players'])
 
@@ -25,7 +26,7 @@ def print_boundary():
     print(f"{''.join(['===' for _ in range(20)])}")
 
 
-def shapley(cv:coalitionValues):
+def shapley(cv:coalitionValues, feature_names = None):
     sv_sum = 0
     scores = []
     for p in cv.players:
@@ -40,6 +41,20 @@ def shapley(cv:coalitionValues):
         print(f"Feature_{score[0]}\t\t{score[1]}")
     print_boundary()
     print(f"SUM: {sv_sum}")
+
+    a,b = tuple(list(l) for l in zip(*scores))
+    a = [feature_names[i-1] for i in cv.players] if feature_names is not None else [f'Feature {c}' for c in a]
+    print(a)
+    print(b)
+
+    # # a = [str(name) for idx, name in enumerate(feature_names) if idx in adjusted_index] if feature_names else list(a)
+    # # b = list(b)
+    # # a = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec']
+    # # b = [1000,-300,400,-100,100,-700,400,-300,500,-700,100,50]
+    # print(a)
+    # print(b)
+    waterfall_chart.plot(a, b, formatting='{:,.3f}')
+    plt.show()
 
 if __name__ == "__main__":
     p1 = {1,2}

@@ -95,7 +95,7 @@ def subsets(A):
     get_subsets(A, res, subset, index)
     return res
 
-def compute_shapley(selected_features, head_node:SBTN, model, X, y):
+def compute_shapley(selected_features, head_node:SBTN, model, X, y, feature_names = None):
     l = len(selected_features)
     # generate all possible subsets
     print('generating subsets...')
@@ -103,9 +103,12 @@ def compute_shapley(selected_features, head_node:SBTN, model, X, y):
     superset = subsets(fs)
 
     # calculate scores
-    print(f"calculating unseen scores... (superset size: {len(superset)})")
+    total = len(superset)
+    i = 0
+    print(f"calculating unseen scores... (superset size: {total})")
     cv = []
     for subset in superset:
+        i += 1
         arr = feature_set_to_arr(subset,l)
         stringified = arr_bit_to_string(arr)
         mean_score = head_node.get_key_score(stringified)
@@ -117,11 +120,12 @@ def compute_shapley(selected_features, head_node:SBTN, model, X, y):
                 mean_score = 0
             head_node.insert_key(stringified, mean_score)
         cv.append((subset, mean_score))
+        print(f'({i}/{total}) \t{subset} score: {mean_score}')
     shap = coalitionValues(cv, fs)
 
     # calculate shapley
     print('calculating shapley values...')
-    shapley(shap)
+    shapley(shap, feature_names)
 
 
 # ========================================================================================
@@ -131,23 +135,29 @@ def compute_shapley(selected_features, head_node:SBTN, model, X, y):
 def main():
     # dataset = load_breast_cancer()
     # # Replace this with your dataset and labels
+    # dataset = load_breast_cancer()
     # X = dataset.data
     # y = dataset.target
     # bit_length = len(dataset.feature_names)
+    # feature_names = dataset.feature_names
 
     # print(f"feature names({len(dataset.feature_names)}): {dataset.feature_names}")
     # print(f"target names({len(dataset.target_names)}): {dataset.target_names}")
 
+    # uc irvine
     dataset = fetch_ucirepo(id=890)
     X = dataset.data.features.values
     y = dataset.data.targets.values.ravel()
-    bit_length = len(dataset.variables) - 2
+    feature_names = list(dataset.data.headers)
+    bit_length = len(feature_names) - 2
 
     # Initialize an empty list to store selected feature indices
     best_bit_string = [ 0 for _ in range(bit_length) ]
     best_score = -1
 
     # Define the machine learning model (in this case, a Random Forest Classifier)
+    # import xgboost as xgb
+    # model = xgb.XGBClassifier()
     model = RandomForestClassifier()
     # model = KNeighborsClassifier()
     # model = SVC()
@@ -227,7 +237,7 @@ def main():
             break
 
     print(f"Selected feature indices: {arr_bit_to_feature_set(rounded(best_bit_string))} : Mean Accuracy: {best_score:.4f}")
-    compute_shapley(rounded(best_bit_string), head_node, model, X, y)
+    compute_shapley(rounded(best_bit_string), head_node, model, X, y, feature_names)
 
 if __name__ == "__main__":
     main()

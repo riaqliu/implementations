@@ -119,7 +119,7 @@ def subsets(A):
     return res
 
 
-def compute_shapley(selected_features, head_node:SBTN, model, X, y):
+def compute_shapley(selected_features, head_node:SBTN, model, X, y, feature_names = None):
     l = len(selected_features)
     # generate all possible subsets
     print('generating subsets...')
@@ -127,13 +127,16 @@ def compute_shapley(selected_features, head_node:SBTN, model, X, y):
     superset = subsets(fs)
 
     # calculate scores
-    print(f"calculating unseen scores... (superset size: {len(superset)})")
+    total = len(superset)
+    i = 0
+    print(f"calculating unseen scores... (superset size: {total})")
     cv = []
     for subset in superset:
+        i += 1
         arr = feature_set_to_arr(subset,l)
         stringified = arr_bit_to_string(arr)
         mean_score = head_node.get_key_score(stringified)
-        if mean_score == None:
+        if mean_score == None:  
             if len(arr_bit_to_feature_set(subset)):
                 scores = cross_val_score(model, X[:, arr_bit_to_feature_set(subset)], y, cv=5, scoring='accuracy')
                 mean_score = np.mean(scores)
@@ -141,11 +144,12 @@ def compute_shapley(selected_features, head_node:SBTN, model, X, y):
                 mean_score = 0
             head_node.insert_key(stringified, mean_score)
         cv.append((subset, mean_score))
+        print(f'({i}/{total}) \t{subset} score: {mean_score}')
     shap = coalitionValues(cv, fs)
 
     # calculate shapley
     print('calculating shapley values...')
-    shapley(shap)
+    shapley(shap, feature_names)
 
 # ========================================================================================
 # Shapley calculation ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -155,18 +159,19 @@ def main():
 
     # # Replace this with your dataset and labels
     # sklearn
-    dataset = load_iris()
-    X = dataset.data
-    y = dataset.target
-    bit_length = len(dataset.feature_names)
+    # dataset = load_breast_cancer()
+    # X = dataset.data
+    # y = dataset.target
+    # bit_length = len(dataset.feature_names)
+    # feature_names = dataset.feature_names
 
     # uc irvine
-    # dataset = fetch_ucirepo(id=52)
-    # X = dataset.data.features.values
-    # y = dataset.data.targets.values.ravel()
-    # bit_length = len(dataset.variables) - 2
+    dataset = fetch_ucirepo(id=890)
+    X = dataset.data.features.values
+    y = dataset.data.targets.values.ravel()
+    feature_names = list(dataset.data.headers)
+    bit_length = len(feature_names) - 2
 
-    # raise Exception()
 
     # Initialize an empty list to store selected feature indices
     best_bit_string = [ 0 for _ in range(bit_length) ]
@@ -227,7 +232,7 @@ def main():
                 start = timer()
 
     print(f"Selected feature indices: {arr_bit_to_feature_set(best_bit_string)} : Mean Accuracy: {best_score:.4f}")
-    compute_shapley(best_bit_string, head_node, model, X, y)
+    compute_shapley(best_bit_string, head_node, model, X, y, feature_names)
 
 def test():
     # SCIKIT
@@ -239,19 +244,19 @@ def test():
     dataset = fetch_ucirepo(id=890)
     X = dataset.data.features.values
     y = dataset.data.targets.values.ravel()
+    feature_names = dataset.data.headers
+    bit_length = len(feature_names) - 2
 
     # # KAGGLE
     # data = pd.read_csv('heart.csv')
-    # print(data.head())
-
-    # raise Exception()
-
+    # print(data.head()
     model = RandomForestClassifier()
     # print(f"feature names({len(dataset.feature_names)}): {dataset.feature_names}")
     # print(f"target names({len(dataset.target_names)}): {dataset.target_names}")
 
     scores = cross_val_score(model, X[:, :], y, cv=5, scoring='accuracy')
     print(np.mean(scores))
+    # compute_shapley(best_bit_string, head_node, model, X, y, feature_names)
     pass
 
 
