@@ -1,7 +1,9 @@
 
 from collections import namedtuple
 from math import factorial
-from numba import jit, cuda 
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 
 coalitionValues = namedtuple('CoalitionValues', ['cvs', 'players'])
 
@@ -25,13 +27,17 @@ def print_boundary():
 
 def shapley(cv:coalitionValues):
     sv_sum = 0
+    scores = []
+    for p in cv.players:
+        sv = get_marginal_contribution(cv.cvs, p, cv.players)
+        scores.append((p,sv))
+        sv_sum += sv
+
     print_boundary()
     print(f"Feature contributions ({len(cv.players)} players)")
     print_boundary()
-    for p in cv.players:
-        sv = get_marginal_contribution(cv.cvs, p, cv.players)
-        sv_sum += sv
-        print(f"Feature_{p}\t\t{sv}")
+    for score in scores:
+        print(f"Feature_{score[0]}\t\t{score[1]}")
     print_boundary()
     print(f"SUM: {sv_sum}")
 

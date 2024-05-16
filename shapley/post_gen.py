@@ -152,17 +152,19 @@ def compute_shapley(selected_features, head_node:SBTN, model, X, y):
 # ========================================================================================
 
 def main():
-    # dataset = load_breast_cancer()
 
     # # Replace this with your dataset and labels
-    # X = dataset.data
-    # y = dataset.target
-    # bit_length = len(dataset.feature_names)
+    # sklearn
+    dataset = load_iris()
+    X = dataset.data
+    y = dataset.target
+    bit_length = len(dataset.feature_names)
 
-    dataset = fetch_ucirepo(id=890)
-    X = dataset.data.features.values
-    y = dataset.data.targets.values.ravel()
-    bit_length = len(dataset.variables) - 2
+    # uc irvine
+    # dataset = fetch_ucirepo(id=52)
+    # X = dataset.data.features.values
+    # y = dataset.data.targets.values.ravel()
+    # bit_length = len(dataset.variables) - 2
 
     # raise Exception()
 
@@ -254,8 +256,8 @@ def test():
 
 
 if __name__ == "__main__":
-    test()
-    # main()
+    # test()
+    main()
     # print(feature_set_to_arr(arr_bit_to_feature_set([0,0,1,0]), 4))
     # Records:
     # @WINE_Database
