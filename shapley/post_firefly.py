@@ -13,6 +13,10 @@ from sklearn.svm import SVC
 from timeit import default_timer as timer
 from shapley_test import get_marginal_contribution, shapley
 from ucimlrepo import fetch_ucirepo 
+import pandas as pd
+from scipy.spatial.distance import hamming
+
+np.random.seed(3333)
 
 coalitionValues = namedtuple('CoalitionValues', ['cvs', 'players'])
 
@@ -66,6 +70,9 @@ def feature_set_to_arr(arr, length):
 def rounded(arr):
     return [1 if i >= 0.5 else 0 for i in arr]
 
+def discretize(arr):
+    return [1/(1+exp(i))for i in arr]
+
 def generate_initial_population(length:int, count:int):
     population = []
 
@@ -113,8 +120,8 @@ def compute_shapley(selected_features, head_node:SBTN, model, X, y, feature_name
         stringified = arr_bit_to_string(arr)
         mean_score = head_node.get_key_score(stringified)
         if mean_score == None:
-            if len(arr_bit_to_feature_set(subset)):
-                scores = cross_val_score(model, X[:, arr_bit_to_feature_set(subset)], y, cv=5, scoring='accuracy')
+            if len(subset):
+                scores = cross_val_score(model, X[:, subset], y, cv=5, scoring='accuracy', n_jobs=-1)
                 mean_score = np.mean(scores)
             else:
                 mean_score = 0
@@ -133,7 +140,20 @@ def compute_shapley(selected_features, head_node:SBTN, model, X, y, feature_name
 # ========================================================================================
 
 def main():
-    # dataset = load_breast_cancer()
+    # # sklearn
+    # dataset = load_iris()
+    # X = dataset.data
+    # y = dataset.target
+    # bit_length = len(dataset.feature_names)
+    # feature_names = dataset.feature_names
+
+    # # sklearn
+    # dataset = load_wine()
+    # X = dataset.data
+    # y = dataset.target
+    # bit_length = len(dataset.feature_names)
+    # feature_names = dataset.feature_names
+
     # # Replace this with your dataset and labels
     # dataset = load_breast_cancer()
     # X = dataset.data
@@ -141,15 +161,63 @@ def main():
     # bit_length = len(dataset.feature_names)
     # feature_names = dataset.feature_names
 
-    # print(f"feature names({len(dataset.feature_names)}): {dataset.feature_names}")
-    # print(f"target names({len(dataset.target_names)}): {dataset.target_names}")
+    # # Aids dataset
+    # dataset = fetch_ucirepo(id=890) 
+    # X = dataset.data.features.values
+    # y = dataset.data.targets.values.ravel()
+    # feature_names = list(dataset.data.headers)
+    # bit_length = len(feature_names) - 2
 
-    # uc irvine
-    dataset = fetch_ucirepo(id=890)
-    X = dataset.data.features.values
-    y = dataset.data.targets.values.ravel()
+    # Ionoshpere
+    dataset = fetch_ucirepo(id=52)
+    X = dataset.data.features.values[:-1]
+    y = dataset.data.targets.values.ravel()[:-1]
     feature_names = list(dataset.data.headers)
-    bit_length = len(feature_names) - 2
+    bit_length = len(feature_names) - 1 
+
+    # # QSAR Biodegradation
+    # feature_names = [f"feature_" + str(n+1) for n in range(42)]
+    # df = pd.read_csv("C:\\Users\\jav\\Documents\\School\\4th Year Sem 2\\CMSC 198.2\\implementations\\data\\biodeg.csv", delimiter=";", names=feature_names)
+    # X = df.iloc[:, :-1].values
+    # y = df.iloc[:, -1].replace({"RB": 1, "NRB": 0}).values
+    # bit_length = len(feature_names) - 1
+
+    # # https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database?resource=download
+    # path = "C:\\Users\\jav\\Documents\\School\\4th Year Sem 2\\CMSC 198.2\\implementations\\data\\diabetes.csv"
+    # df = pd.read_csv(path)
+    # X = df.iloc[:, :-1].values
+    # y = df.iloc[:, -1].replace({"RB": 1, "NRB": 0}).values
+    # feature_names = df.columns
+    # bit_length = len(feature_names) - 1
+
+    # # https://www.kaggle.com/datasets/rashikrahmanpritom/heart-attack-analysis-prediction-dataset
+    # path = "C:\\Users\\jav\\Documents\\School\\4th Year Sem 2\\CMSC 198.2\\implementations\\data\\heart.csv"
+    # df = pd.read_csv(path)
+    # X = df.iloc[:, :-1].values
+    # y = df.iloc[:, -1].replace({"RB": 1, "NRB": 0}).values
+    # feature_names = df.columns
+    # bit_length = len(feature_names) - 1
+
+    # # https://archive.ics.uci.edu/dataset/151/connectionist+bench+sonar+mines+vs+rocks
+    # dataset = fetch_ucirepo(id=151)
+    # X = dataset.data.features.sample(n=40, axis="columns")
+    # y = dataset.data.targets.values.ravel()
+    # feature_names = X.columns
+    # bit_length = len(X.columns)
+    # X = X.values
+
+    # # https://archive.ics.uci.edu/dataset/855/tuandromd+(tezpur+university+android+malware+dataset)
+    # path = "C:\\Users\\jav\\Documents\\School\\4th Year Sem 2\\CMSC 198.2\\implementations\\data\\TUANDROMD.csv"
+    # df = pd.read_csv(path)
+    # df['Label'] = df['Label'].replace({"malware": 1, "goodware": 0})
+    # if df['Label'].isna().sum() > 0:
+    #     df = df.dropna(subset=['Label'])
+    # X = df.iloc[:, :-1].sample(n=40, axis="columns")
+    # feature_names = X.columns
+    # bit_length = len(feature_names) - 1
+    # y = df.iloc[:, -1].values
+    # X = X.values
+
 
     # Initialize an empty list to store selected feature indices
     best_bit_string = [ 0 for _ in range(bit_length) ]
@@ -163,7 +231,7 @@ def main():
     # model = SVC()
     # model = LogisticRegression()
     head_node = SBTN()
-    population_count = 15
+    population_count = 20
     population = generate_initial_population(bit_length, population_count)
     streak = 0
     threshold = inf
@@ -174,7 +242,7 @@ def main():
     last_best_score = -1
     start = timer()
     # Loop
-    for loop in range(1000):
+    for loop in range(100):
         current_best_score = -1
         current_best_bit_string = None
         scored_bit_strings = []
@@ -187,12 +255,12 @@ def main():
             if mean_score == None:
                 # calculate scores for newly seen strings
                 if 1 in rounded_bit_string:
-                    scores = cross_val_score(model, X[:, arr_bit_to_feature_set(rounded_bit_string)], y, cv=5, scoring='accuracy')
+                    scores = cross_val_score(model, X[:, arr_bit_to_feature_set(rounded_bit_string)], y, cv=5, scoring='accuracy', n_jobs=-1)
                     mean_score = np.mean(scores)
                 else:
                     mean_score = 0
                 head_node.insert_key(stringified, mean_score)
-            scored_bit_strings.append((bit_string, mean_score))
+            scored_bit_strings.append((rounded(bit_string), mean_score))
 
             # Keep track of the best-performing feature set
             if mean_score > current_best_score:
@@ -211,9 +279,9 @@ def main():
             for b2 in scored_bit_strings:
                 if b2[1] > b1[1]:
                     b2_vec = np.array(b2[0])
-                    difference = b2_vec - b1_vec
+                    difference = hamming(b1_vec, b2_vec) * bit_length # b2_vec - b1_vec
                     coeff = beta_0 * exp(-gamma * linalg.norm(difference)**2)
-                    velocity += coeff * difference
+                    velocity += coeff * (b2_vec - b1_vec)
                 else:
                     break
             updated_bit_strings.append(list(velocity))

@@ -160,12 +160,12 @@ def compute_shapley(selected_features, head_node:SBTN, model, X, y, feature_name
 # ========================================================================================
 
 def main():
-    # # sklearn
-    # dataset = load_iris()
-    # X = dataset.data
-    # y = dataset.target
-    # bit_length = len(dataset.feature_names)
-    # feature_names = dataset.feature_names
+    # sklearn
+    dataset = load_iris()
+    X = dataset.data
+    y = dataset.target
+    bit_length = len(dataset.feature_names)
+    feature_names = dataset.feature_names
 
     # # sklearn
     # dataset = load_wine()
@@ -226,17 +226,17 @@ def main():
     # bit_length = len(X.columns)
     # X = X.values
 
-    # https://archive.ics.uci.edu/dataset/855/tuandromd+(tezpur+university+android+malware+dataset)
-    path = "C:\\Users\\jav\\Documents\\School\\4th Year Sem 2\\CMSC 198.2\\implementations\\data\\TUANDROMD.csv"
-    df = pd.read_csv(path)
-    df['Label'] = df['Label'].replace({"malware": 1, "goodware": 0})
-    if df['Label'].isna().sum() > 0:
-        df = df.dropna(subset=['Label'])
-    X = df.iloc[:, :-1]
-    feature_names = X.columns
-    bit_length = len(feature_names) - 1
-    y = df.iloc[:, -1].values
-    X = X.values
+    # # https://archive.ics.uci.edu/dataset/855/tuandromd+(tezpur+university+android+malware+dataset)
+    # path = "C:\\Users\\jav\\Documents\\School\\4th Year Sem 2\\CMSC 198.2\\implementations\\data\\TUANDROMD.csv"
+    # df = pd.read_csv(path)
+    # df['Label'] = df['Label'].replace({"malware": 1, "goodware": 0})
+    # if df['Label'].isna().sum() > 0:
+    #     df = df.dropna(subset=['Label'])
+    # X = df.iloc[:, :-1]
+    # feature_names = X.columns
+    # bit_length = len(feature_names) - 1
+    # y = df.iloc[:, -1].values
+    # X = X.values
 
     # Initialize an empty list to store selected feature indices
     best_bit_string = [ 0 for _ in range(bit_length) ]
