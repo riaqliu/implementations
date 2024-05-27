@@ -6,6 +6,7 @@ from math import exp, inf
 from scipy import linalg
 from random import gauss
 from scipy.spatial.distance import hamming
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import xgboost as xgb
 
@@ -21,6 +22,32 @@ from shapley_calc import compute_shapley
 from model import compute_scores
 
 np.random.seed(3333)
+
+def calculate_attraction(scored_bit_strings, bit_length):
+    beta_0 = 0.06
+    gamma = 0.0005
+    alpha = 0.3
+    updated_bit_strings = []
+
+    with ThreadPoolExecutor(max_workers=min(len(scored_bit_strings), 1000)) as executor:
+        futures = [executor.submit(attraction, scored_bit_strings, score, bit_length, beta_0, gamma, alpha) for score in scored_bit_strings]
+        for future in as_completed(futures):
+            updated_bit_strings.append(future.result())
+    return updated_bit_strings
+
+def attraction(scored_bit_strings, score, bit_length, beta_0, gamma, alpha):
+    s1_vec = np.array(score[0])
+    elof = np.array([gauss() for _ in range(bit_length)])
+    velocity = s1_vec + alpha*elof
+    for score2 in scored_bit_strings:
+        if score2[1] > score[1]:
+            s2_vec = np.array(score2[0])
+            difference = hamming(s1_vec, s2_vec) * bit_length
+            coeff = beta_0 * exp(-gamma * linalg.norm(difference)**2)
+            velocity += coeff * (s2_vec - s1_vec)
+        else:
+            break
+    return discretize(list(velocity))
 
 def main():
     name = "wine"
@@ -38,9 +65,6 @@ def main():
     population = generate_initial_population(bit_length, population_count)
     streak = 0
     threshold = inf
-    beta_0 = 0.06
-    gamma = 0.0005
-    alpha = 0.3
 
     last_best_score = -1
     start = timer()
@@ -55,20 +79,7 @@ def main():
         scored_bit_strings.sort(key=lambda bs: bs[1],reverse=True)
 
         # Calculate new positions based on attraction
-        updated_bit_strings = []
-        for b1 in scored_bit_strings:
-            b1_vec = np.array(b1[0])
-            elof = np.array([gauss() for _ in range(bit_length)])
-            velocity = b1_vec + alpha*elof
-            for b2 in scored_bit_strings:
-                if b2[1] > b1[1]:
-                    b2_vec = np.array(b2[0])
-                    difference = hamming(b1_vec, b2_vec) * bit_length # b2_vec - b1_vec
-                    coeff = beta_0 * exp(-gamma * linalg.norm(difference)**2)
-                    velocity += coeff * (b2_vec - b1_vec)
-                else:
-                    break
-            updated_bit_strings.append(discretize(list(velocity)))
+        updated_bit_strings = calculate_attraction(scored_bit_strings, bit_length)
         population = deepcopy(updated_bit_strings)
 
         if current_best_bit_string is not None:

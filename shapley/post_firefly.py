@@ -147,12 +147,12 @@ def main():
     # bit_length = len(dataset.feature_names)
     # feature_names = dataset.feature_names
 
-    # # sklearn
-    # dataset = load_wine()
-    # X = dataset.data
-    # y = dataset.target
-    # bit_length = len(dataset.feature_names)
-    # feature_names = dataset.feature_names
+    # sklearn
+    dataset = load_wine()
+    X = dataset.data
+    y = dataset.target
+    bit_length = len(dataset.feature_names)
+    feature_names = dataset.feature_names
 
     # # Replace this with your dataset and labels
     # dataset = load_breast_cancer()
@@ -168,12 +168,12 @@ def main():
     # feature_names = list(dataset.data.headers)
     # bit_length = len(feature_names) - 2
 
-    # Ionoshpere
-    dataset = fetch_ucirepo(id=52)
-    X = dataset.data.features.values[:-1]
-    y = dataset.data.targets.values.ravel()[:-1]
-    feature_names = list(dataset.data.headers)
-    bit_length = len(feature_names) - 1 
+    # # Ionoshpere
+    # dataset = fetch_ucirepo(id=52)
+    # X = dataset.data.features.values[:-1]
+    # y = dataset.data.targets.values.ravel()[:-1]
+    # feature_names = list(dataset.data.headers)
+    # bit_length = len(feature_names) - 1 
 
     # # QSAR Biodegradation
     # feature_names = [f"feature_" + str(n+1) for n in range(42)]

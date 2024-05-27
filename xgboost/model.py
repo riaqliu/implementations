@@ -49,5 +49,5 @@ def compute_scores(model, X, y, population, head_node:SBTN):
     return head_node, current_best_bit_string, current_best_score, ranked_bit_strings
 
 def train_model(model, X, y, bitstring):
-    scores = cross_val_score(model, X, y, cv=10, scoring='accuracy', n_jobs=-1)
+    scores = cross_val_score(model, X, y, cv=5, scoring='accuracy', n_jobs=-1)
     return bitstring, np.mean(scores)

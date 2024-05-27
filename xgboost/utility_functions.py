@@ -1,5 +1,5 @@
 from random import randint
-from sklearn.datasets import load_breast_cancer, load_diabetes, load_digits, load_iris, load_wine
+from sklearn.datasets import load_breast_cancer, load_iris, load_wine
 from ucimlrepo import fetch_ucirepo
 import pandas as pd
 from math import exp
@@ -77,8 +77,8 @@ def load_dataset(name: str):
     elif name == "ionosphere":
         # https://archive.ics.uci.edu/dataset/52/ionosphere
         dataset = fetch_ucirepo(id=52)
-        X = dataset.data.features.values[:-1]
-        y_categorical  = dataset.data.targets.values.ravel()[:-1]
+        X = dataset.data.features.values[1:]
+        y_categorical  = dataset.data.targets.values.ravel()[1:]
         y_series = pd.Series(y_categorical)
         y, _ = pd.factorize(y_series)
         feature_names = list(dataset.data.headers)
