@@ -149,6 +149,7 @@ def compute_shapley(selected_features, head_node:SBTN, model, X, y, feature_name
             head_node.insert_key(stringified, mean_score)
         cv.append((subset, mean_score))
         print(f'({i}/{total}) \t{subset} score: {mean_score}')
+    print(cv)
     shap = coalitionValues(cv, fs)
 
     # calculate shapley
@@ -167,12 +168,12 @@ def main():
     # bit_length = len(dataset.feature_names)
     # feature_names = dataset.feature_names
 
-    # # sklearn
-    # dataset = load_wine()
-    # X = dataset.data
-    # y = dataset.target
-    # bit_length = len(dataset.feature_names)
-    # feature_names = dataset.feature_names
+    # sklearn
+    dataset = load_wine()
+    X = dataset.data
+    y = dataset.target
+    bit_length = len(dataset.feature_names)
+    feature_names = dataset.feature_names
 
     # # Replace this with your dataset and labels
     # dataset = load_breast_cancer()
@@ -226,17 +227,17 @@ def main():
     # bit_length = len(X.columns)
     # X = X.values
 
-    # https://archive.ics.uci.edu/dataset/855/tuandromd+(tezpur+university+android+malware+dataset)
-    path = "C:\\Users\\jav\\Documents\\School\\4th Year Sem 2\\CMSC 198.2\\implementations\\data\\TUANDROMD.csv"
-    df = pd.read_csv(path)
-    df['Label'] = df['Label'].replace({"malware": 1, "goodware": 0})
-    if df['Label'].isna().sum() > 0:
-        df = df.dropna(subset=['Label'])
-    X = df.iloc[:, :-1]
-    feature_names = X.columns
-    bit_length = len(feature_names) - 1
-    y = df.iloc[:, -1].values
-    X = X.values
+    # # https://archive.ics.uci.edu/dataset/855/tuandromd+(tezpur+university+android+malware+dataset)
+    # path = "C:\\Users\\jav\\Documents\\School\\4th Year Sem 2\\CMSC 198.2\\implementations\\data\\TUANDROMD.csv"
+    # df = pd.read_csv(path)
+    # df['Label'] = df['Label'].replace({"malware": 1, "goodware": 0})
+    # if df['Label'].isna().sum() > 0:
+    #     df = df.dropna(subset=['Label'])
+    # X = df.iloc[:, :-1]
+    # feature_names = X.columns
+    # bit_length = len(feature_names) - 1
+    # y = df.iloc[:, -1].values
+    # X = X.values
 
     # Initialize an empty list to store selected feature indices
     best_bit_string = [ 0 for _ in range(bit_length) ]
@@ -274,8 +275,6 @@ def main():
             # raise Exception(mean_score)
             if mean_score == None:
                 # calculate scores for newly seen strings
-                # print(bit_string, arr_bit_to_feature_set(bit_string))
-                # raise Exception()
                 scores = cross_val_score(model, X[:, arr_bit_to_feature_set(bit_string)], y, cv=10, scoring='accuracy')
                 mean_score = np.mean(scores)
                 head_node.insert_key(stringified, mean_score)
