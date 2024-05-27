@@ -23,7 +23,7 @@ from model import compute_scores
 np.random.seed(3333)
 
 def main():
-    name = "QSARbiodegration"
+    name = "wine"
     print(name)
     X, y, bit_length, feature_names = load_dataset(name)
 
@@ -45,7 +45,7 @@ def main():
     last_best_score = -1
     start = timer()
     # Loop
-    for loop in range(100):
+    for loop in range(200):
         current_best_score = -1
         current_best_bit_string = None
 

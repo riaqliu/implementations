@@ -32,7 +32,7 @@ def compute_scores(model, X, y, population, head_node:SBTN):
                 current_best_score = mean_score
                 current_best_bit_string = bit_string
     if len(to_compute):
-        with ThreadPoolExecutor(max_workers=len(to_compute)) as executor:
+        with ThreadPoolExecutor(max_workers=min(len(to_compute),2000)) as executor:
             futures = [executor.submit(train_model, model, X[:,v[1]], y, v[0]) for v in to_compute]
 
             for future in as_completed(futures):
