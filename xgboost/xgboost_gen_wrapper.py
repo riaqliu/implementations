@@ -8,14 +8,12 @@ import numpy as np
 from timeit import default_timer as timer
 
 import xgboost as xgb
-import shap
 
 # personal imports
 from utility_functions import (
     load_dataset,
     generate_initial_population,
     string_to_arr,
-    arr_bit_to_feature_set
 )
 from SBTN import SBTN
 from shapley_calc import compute_shapley
@@ -43,7 +41,7 @@ def crossover_and_mutate(parents:List, generation_target:int, mutation_chance:fl
     return population
 
 def main():
-    name = "PIMAdiabetes"
+    name = "iris"
     print(name)
     X, y, bit_length, feature_names = load_dataset(name)
 

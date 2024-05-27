@@ -20,8 +20,9 @@ def compute_scores(model, X, y, population, head_node:SBTN):
         mean_score = head_node.get_key_score(stringified)
         # raise Exception(mean_score)
         if mean_score == None:
-            # calculate scores for newly seen strings
-            to_compute.append((stringified, arr_bit_to_feature_set(rounded_bit_string)))
+            if 1 in rounded_bit_string:
+                # calculate scores for newly seen strings
+                to_compute.append((stringified, arr_bit_to_feature_set(rounded_bit_string)))
         # Keep track of the best-performing feature set
         else:
             ranked_bit_strings.append((rounded_bit_string, mean_score))
