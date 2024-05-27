@@ -14,6 +14,7 @@ from utility_functions import (
     load_dataset,
     generate_initial_population,
     string_to_arr,
+    discretize,
 )
 from SBTN import SBTN
 from shapley_calc import compute_shapley
@@ -67,7 +68,7 @@ def main():
                     velocity += coeff * (b2_vec - b1_vec)
                 else:
                     break
-            updated_bit_strings.append(list(velocity))
+            updated_bit_strings.append(discretize(list(velocity)))
         population = deepcopy(updated_bit_strings)
 
         if current_best_bit_string is not None:
