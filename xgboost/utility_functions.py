@@ -20,7 +20,7 @@ def rounded(arr):
     return [1 if i >= 0.5 else 0 for i in arr]
 
 def discretize(arr):
-    return [(1/(1+exp(-i))) for i in arr]
+    return [(1/(1+exp(i))) for i in arr]
 
 def generate_initial_population(length:int, count:int):
     population = []

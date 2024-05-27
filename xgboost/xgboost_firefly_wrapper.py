@@ -23,7 +23,7 @@ from model import compute_scores
 np.random.seed(3333)
 
 def main():
-    name = "iris"
+    name = "QSARbiodegration"
     print(name)
     X, y, bit_length, feature_names = load_dataset(name)
 
@@ -89,6 +89,7 @@ def main():
 
     print(f"Selected feature indices: {best_bit_string} : Mean Accuracy: {best_score:.4f}")
     compute_shapley(string_to_arr(best_bit_string), head_node, model, X, y, feature_names)
+    print(name)
 
 if __name__ == "__main__":
     main()

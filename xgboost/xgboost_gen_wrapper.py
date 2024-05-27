@@ -87,6 +87,7 @@ def main():
     print(f"Selected feature indices: {best_bit_string} : Mean Accuracy: {best_score:.4f}")
 
     compute_shapley(string_to_arr(best_bit_string), head_node, model, X, y, feature_names)
+    print(name)
 
 def test():
     # NEGATIVE CONTROL

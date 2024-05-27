@@ -8,6 +8,8 @@ from utility_functions import (
     string_to_arr,
     rounded)
 
+np.random.seed(3333)
+
 def compute_scores(model, X, y, population, head_node:SBTN):
     current_best_score = -1
     current_best_bit_string = None
