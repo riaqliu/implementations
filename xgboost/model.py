@@ -10,7 +10,7 @@ from utility_functions import (
 
 np.random.seed(3333)
 
-def compute_scores(model, X, y, population, head_node:SBTN):
+def compute_scores(model, X, y, population, head_node:SBTN, cv=10):
     current_best_score = -1
     current_best_bit_string = None
     to_compute = []
@@ -33,7 +33,7 @@ def compute_scores(model, X, y, population, head_node:SBTN):
                 current_best_bit_string = bit_string
     if len(to_compute):
         with ThreadPoolExecutor(max_workers=min(len(to_compute),2000)) as executor:
-            futures = [executor.submit(train_model, model, X[:,v[1]], y, v[0]) for v in to_compute]
+            futures = [executor.submit(train_model, model, X[:,v[1]], y, v[0], cv) for v in to_compute]
 
             for future in as_completed(futures):
                 score = future.result()
@@ -48,6 +48,6 @@ def compute_scores(model, X, y, population, head_node:SBTN):
                     ranked_bit_strings.append((string_to_arr(score[0]), score[1]))
     return head_node, current_best_bit_string, current_best_score, ranked_bit_strings
 
-def train_model(model, X, y, bitstring):
-    scores = cross_val_score(model, X, y, cv=5, scoring='accuracy', n_jobs=-1)
+def train_model(model, X, y, bitstring, cv=10):
+    scores = cross_val_score(model, X, y, cv=cv, scoring='accuracy', n_jobs=-1)
     return bitstring, np.mean(scores)

@@ -41,7 +41,7 @@ def crossover_and_mutate(parents:List, generation_target:int, mutation_chance:fl
     return population
 
 def main():
-    name = "iris"
+    name = "malware"
     print(name)
     X, y, bit_length, feature_names = load_dataset(name)
 

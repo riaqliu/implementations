@@ -106,7 +106,7 @@ def compute_shapley(selected_features, head_node:SBTN, model, X, y, feature_name
 
     if len(to_compute):
         with ThreadPoolExecutor(max_workers=min(len(to_compute),2000)) as executor:
-            futures = [executor.submit(train_model, model, X[:,v[1]], y, v[0]) for v in to_compute]
+            futures = [executor.submit(train_model, model, X[:,v[1]], y, v[0], 2) for v in to_compute]
 
             for future in as_completed(futures):
                 score = future.result()

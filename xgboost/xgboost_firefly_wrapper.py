@@ -28,11 +28,11 @@ def calculate_attraction(scored_bit_strings, bit_length):
     gamma = 0.0005
     alpha = 0.3
     updated_bit_strings = []
-
-    with ThreadPoolExecutor(max_workers=min(len(scored_bit_strings), 1000)) as executor:
-        futures = [executor.submit(attraction, scored_bit_strings, score, bit_length, beta_0, gamma, alpha) for score in scored_bit_strings]
-        for future in as_completed(futures):
-            updated_bit_strings.append(future.result())
+    if scored_bit_strings:
+        with ThreadPoolExecutor(max_workers=min(len(scored_bit_strings), 1000)) as executor:
+            futures = [executor.submit(attraction, scored_bit_strings, score, bit_length, beta_0, gamma, alpha) for score in scored_bit_strings]
+            for future in as_completed(futures):
+                updated_bit_strings.append(future.result())
     return updated_bit_strings
 
 def attraction(scored_bit_strings, score, bit_length, beta_0, gamma, alpha):
@@ -50,7 +50,7 @@ def attraction(scored_bit_strings, score, bit_length, beta_0, gamma, alpha):
     return discretize(list(velocity))
 
 def main():
-    name = "wine"
+    name = "minesvsrocks"
     print(name)
     X, y, bit_length, feature_names = load_dataset(name)
 
@@ -73,7 +73,7 @@ def main():
         current_best_score = -1
         current_best_bit_string = None
 
-        head_node, current_best_bit_string, current_best_score, scored_bit_strings = compute_scores(model, X, y, population, head_node)
+        head_node, current_best_bit_string, current_best_score, scored_bit_strings = compute_scores(model, X, y, population, head_node, cv=5)
 
         # rank bit strings for optimization
         scored_bit_strings.sort(key=lambda bs: bs[1],reverse=True)
