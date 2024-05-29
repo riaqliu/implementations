@@ -88,21 +88,23 @@ def compute_shapley(selected_features, head_node:SBTN, model, X, y, feature_name
     for subset in superset:
         arr = feature_set_to_arr(subset,l)
         stringified = arr_bit_to_string(arr)
-        mean_score = head_node.get_key_score(stringified)
-        if mean_score == None:
+        scores = head_node.get_key_score(stringified)
+        if scores is None:
             if len(subset):
                 # calculate scores for newly seen strings
                 to_compute.append((stringified, subset))
             else:
                 i += 1
-                mean_score = 0
-                head_node.insert_key(stringified, mean_score)
+                scores = [0,]
+                mean_score = np.mean(scores)
+                head_node.insert_key(stringified, scores)
                 cv.append((subset, mean_score))
-                print(f'({i}/{total}) \t{subset} score: {mean_score}')
+                print(f'({i}/{total}) \t{subset} score: {mean_score} @zero')
         else:
             i += 1
+            mean_score = np.mean(scores)
             cv.append((subset, mean_score))
-            print(f'({i}/{total}) \t{subset} score: {mean_score}')
+            print(f'({i}/{total}) \t{subset} score: {mean_score} @scored')
 
     if len(to_compute):
         with ThreadPoolExecutor(max_workers=min(len(to_compute),2000)) as executor:
@@ -112,8 +114,8 @@ def compute_shapley(selected_features, head_node:SBTN, model, X, y, feature_name
                 score = future.result()
                 i += 1
                 head_node.insert_key(score[0], score[1])
-                mean_score = score[1]
                 arr_set = arr_bit_to_feature_set(string_to_arr(score[0]))
+                mean_score = np.mean(score[1])
                 cv.append((arr_set, mean_score))
                 print(f'({i}/{total}) \t{arr_set} score: {mean_score}')
 

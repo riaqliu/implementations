@@ -7,6 +7,7 @@ from scipy import linalg
 from random import gauss
 from scipy.spatial.distance import hamming
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from sklearn.model_selection import cross_val_score
 
 import xgboost as xgb
 
@@ -16,6 +17,7 @@ from utility_functions import (
     generate_initial_population,
     string_to_arr,
     discretize,
+    arr_bit_to_feature_set,
 )
 from SBTN import SBTN
 from shapley_calc import compute_shapley
@@ -50,13 +52,14 @@ def attraction(scored_bit_strings, score, bit_length, beta_0, gamma, alpha):
     return discretize(list(velocity))
 
 def main():
-    name = "minesvsrocks"
+    name = "wine"
     print(name)
     X, y, bit_length, feature_names = load_dataset(name)
 
     # Initialize an empty list to store selected feature indices
     best_bit_string = [ 0 for _ in range(bit_length) ]
     best_score = -1
+    best_scores = [-1,]
 
     # Define the machine learning model (in this case, a Random Forest Classifier)
     model = xgb.XGBRFClassifier(use_label_encoder=False, eval_metric='mlogloss')
@@ -73,7 +76,8 @@ def main():
         current_best_score = -1
         current_best_bit_string = None
 
-        head_node, current_best_bit_string, current_best_score, scored_bit_strings = compute_scores(model, X, y, population, head_node, cv=5)
+        head_node, current_best_bit_string, current_best_score, scored_bit_strings, current_best_scores = compute_scores(model, X, y, population, head_node, cv=10)
+        # print(scored_bit_strings, current_best_scores, current_best_score)
 
         # rank bit strings for optimization
         scored_bit_strings.sort(key=lambda bs: bs[1],reverse=True)
@@ -86,6 +90,7 @@ def main():
             if current_best_score > best_score:
                 best_bit_string = current_best_bit_string
                 best_score = current_best_score
+                best_scores = current_best_scores
                 streak = 0
                 print(f"[{loop}] Current best feature set {current_best_bit_string}, Mean Accuracy: {current_best_score:.4f} // time since last best: {(timer() - start):.4f}s")
                 start = timer()
@@ -99,8 +104,11 @@ def main():
             break
 
     print(f"Selected feature indices: {best_bit_string} : Mean Accuracy: {best_score:.4f}")
+    print(best_bit_string)
     compute_shapley(string_to_arr(best_bit_string), head_node, model, X, y, feature_names)
     print(name)
+    print(list(best_scores))
+    print(np.mean(best_scores))
 
 if __name__ == "__main__":
     main()

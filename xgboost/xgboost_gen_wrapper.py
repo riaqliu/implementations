@@ -14,6 +14,7 @@ from utility_functions import (
     load_dataset,
     generate_initial_population,
     string_to_arr,
+    arr_bit_to_feature_set,
 )
 from SBTN import SBTN
 from shapley_calc import compute_shapley
@@ -41,7 +42,7 @@ def crossover_and_mutate(parents:List, generation_target:int, mutation_chance:fl
     return population
 
 def main():
-    name = "malware"
+    name = "minesvsrocks"
     print(name)
     X, y, bit_length, feature_names = load_dataset(name)
 
@@ -88,14 +89,18 @@ def main():
 
     compute_shapley(string_to_arr(best_bit_string), head_node, model, X, y, feature_names)
     print(name)
+    scores = cross_val_score(model, X[:,arr_bit_to_feature_set(string_to_arr(best_bit_string))], y, cv=10, scoring='accuracy', n_jobs=-1)
+    print(list(scores))
+    print(np.mean(scores))
 
 def test():
     # NEGATIVE CONTROL
-    name = "PIMAdiabetes"
+    name = "minesvsrocks"
     X, y, _, _ = load_dataset(name)
     model = xgb.XGBRFClassifier(use_label_encoder=False, eval_metric='mlogloss')
     scores = cross_val_score(model, X, y, cv=10, scoring='accuracy', n_jobs=-1)
     score = np.mean(scores)
+    print(list(scores))
     print(f"{name} Negative Control,  Mean Accuracy: {score}")
 
 if __name__ == "__main__":
