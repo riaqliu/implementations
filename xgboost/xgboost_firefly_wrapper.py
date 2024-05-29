@@ -52,7 +52,7 @@ def attraction(scored_bit_strings, score, bit_length, beta_0, gamma, alpha):
     return discretize(list(velocity))
 
 def main():
-    name = "wine"
+    name = "QSARbiodegration"
     print(name)
     X, y, bit_length, feature_names = load_dataset(name)
 
@@ -104,7 +104,6 @@ def main():
             break
 
     print(f"Selected feature indices: {best_bit_string} : Mean Accuracy: {best_score:.4f}")
-    print(best_bit_string)
     compute_shapley(string_to_arr(best_bit_string), head_node, model, X, y, feature_names)
     print(name)
     print(list(best_scores))

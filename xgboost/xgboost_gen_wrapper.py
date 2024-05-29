@@ -49,6 +49,7 @@ def main():
     # Initialize an empty list to store selected feature indices
     best_bit_string = [ 0 for _ in range(bit_length) ]
     best_score = -1
+    best_scores = [-1,]
 
     # Define the machine learning model (in this case, a Random Forest Classifier)
     model = xgb.XGBRFClassifier(use_label_encoder=False, eval_metric='mlogloss')
@@ -71,7 +72,7 @@ def main():
             # Cull strings without any feature
             population = [ind for ind in population if 1 in ind]
 
-        head_node, current_best_bit_string, current_best_score, ranked_bit_strings = compute_scores(model, X, y, population, head_node)
+        head_node, current_best_bit_string, current_best_score, ranked_bit_strings, current_best_scores  = compute_scores(model, X, y, population, head_node)
 
         # Apply elitism
         ranked_bit_strings.sort(key=lambda bs: bs[1], reverse=True)
@@ -82,6 +83,7 @@ def main():
             if current_best_score > best_score:
                 best_bit_string = current_best_bit_string
                 best_score = current_best_score
+                best_scores = current_best_scores
                 print(f"[{loop}] Current best feature set {current_best_bit_string}, Mean Accuracy: {current_best_score:.4f} // time since last best: {(timer() - start):.4f}s")
                 start = timer()
 
@@ -89,9 +91,8 @@ def main():
 
     compute_shapley(string_to_arr(best_bit_string), head_node, model, X, y, feature_names)
     print(name)
-    scores = cross_val_score(model, X[:,arr_bit_to_feature_set(string_to_arr(best_bit_string))], y, cv=10, scoring='accuracy', n_jobs=-1)
-    print(list(scores))
-    print(np.mean(scores))
+    print(list(best_scores))
+    print(np.mean(best_scores))
 
 def test():
     # NEGATIVE CONTROL
