@@ -52,7 +52,7 @@ def attraction(scored_bit_strings, score, bit_length, beta_0, gamma, alpha):
     return discretize(list(velocity))
 
 def main():
-    name = "QSARbiodegration"
+    name = "ionosphere"
     print(name)
     X, y, bit_length, feature_names = load_dataset(name)
 

@@ -49,13 +49,20 @@ def shapley(cv:coalitionValues, feature_names = None):
         print(f"Feature_{score[0]}\t\t{score[1]}")
     print_boundary()
     print(f"SUM: {sv_sum}")
+    
+    plot(scores, feature_names, cv.players)
 
+
+def plot(scores:list, feature_names:list, players:set):
+    scores.sort(key=lambda x:x[1], reverse=True)
+    print(scores, feature_names, players)
     a,b = tuple(list(l) for l in zip(*scores))
-    a = [feature_names[i-1] for i in cv.players] if feature_names is not None else [f'Feature {c}' for c in a]
+    a = [feature_names[i-1] for i in players] if feature_names is not None else [f'Feature {c}' for c in a]
     print(a)
     print(b)
     print([s[0] for s in scores])
     waterfall_chart.plot(a, b, formatting='{:,.3f}')
+    plt.ylim(bottom=0)
     plt.show()
 
 def get_subsets(A, res, subset, index):
@@ -124,3 +131,28 @@ def compute_shapley(selected_features, head_node:SBTN, model, X, y, feature_name
     # calculate shapley
     print('calculating shapley values...')
     shapley(shap, feature_names)
+
+if __name__ == "__main__":
+    p1 = {1,2}
+    p2 = {1,2,3}
+    cv1 = [
+        ({1,2}, 10000),
+        ({1}, 7500),
+        ({2}, 5000),
+        (set(), 0)
+    ]
+    cv2 = [
+        ({1,2,3}, 10000),
+        (set(), 0),
+        ({1,2}, 7500),
+        ({1,3}, 7500),
+        ({2,3}, 5000),
+        ({1}, 5000),
+        ({2}, 5000),
+        ({3}, 0),
+    ]
+
+    cv1 = coalitionValues(cv1, p1)
+    cv2 = coalitionValues(cv2, p2)
+
+    shapley(cv2)
